@@ -1,0 +1,118 @@
+
+    <h1 style="text-align: center">Library of Congress Subject Headings</h1>
+
+    <div class="concept">
+        <p>
+        This is an experimental service that makes the
+        <a href="http://en.wikipedia.org/wiki/Library_of_Congress_Subject_Headings">Library of Congress Subject Headings</a> available as 
+        <a href="http://en.wikipedia.org/wiki/Linked_Data">linked-data</a> using the 
+        <a href="http://en.wikipedia.org/wiki/SKOS">SKOS</a> vocabulary.
+        The goal of <em>lcsh.info</em> is to encourage experimentation
+        and use of LCSH on the web with the hopes of informing a similar 
+        effort at the Library of Congress to make a continually updated 
+        version available. More information about the Linked Data 
+        effort can be found 
+        on the <a href="http://esw.w3.org/topic/SweoIG/TaskForces/CommunityProjects/LinkingOpenData">W3C Wiki</a>.
+        </p>
+
+        <p>
+        Following the principles laid out in 
+        <a href="http://www.w3.org/TR/cooluris/">Cool URIs for the Semantic
+            Web</a> you can reference LCSH concepts using a URI that contains
+        the Library of Congress Control Number for the authority record:
+        <em>http://lcsubjects.org/subjects/{lccn}#concept</em>. The server
+        uses <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec12.html">
+        content negotiation</a> to determine what representation of 
+        the concept to send: <em>application/rdf+xml</em>, <em>text/n3</em>, 
+        <em>application/json</em>, and otherwise <em>application/xhtml+xml</em>.
+        </p>
+
+        <p>
+        You can download the <a href="/static/lcsh.nt.zip">entire dataset</a>
+        (2,441,494 triples), <a href="/search">search</a> across the 
+        concept scheme, or try out the <a href="http://sparql.lcsh.info">
+        SPARQL endpoint</a>. Otherwise, here are a couple high 
+        level concepts, a couple fun concepts, and links to some linked 
+        data viewers to get you (or your bot) started on your travels:
+        </p>
+
+        <table width="90%" style="text-align: center;">
+            <tr>
+                <th>Concept</th>
+                <th>Concept URI</th>
+                <th>Linked Data Viewers</th>
+            </tr>
+            <tr>
+
+                <td><a href="http://lcsubjects.org/subjects/sh85118553#concept">Science</a></td>
+                <td>http://lcsubjects.org/subjects/sh85118553#concept</td>
+                <td>
+                    <a href="http://demo.openlinksw.com/rdfbrowser/?uri=http://lcsubjects.org/subjects/sh85118553">OpenLink</a>
+                    <a href="http://www4.wiwiss.fu-berlin.de/rdf_browser/?browse_uri=http://lcsubjects.org/subjects/sh85118553">Disco</a>
+                    <a href="http://dataviewer.zitgist.com/?uri=http://lcsubjects.org/subjects/sh85118553">Zitgist</a>
+
+                </td>
+            </tr>
+            <tr>
+                <td><a href="http://lcsubjects.org/subjects/sh85062913#concept">Humanities</a></td>
+                <td>http://lcsubjects.org/subjects/sh85062913#concept</td>
+                <td>
+                    <a href="http://demo.openlinksw.com/rdfbrowser/?uri=http://lcsubjects.org/subjects/sh85062913">OpenLink</a>
+
+                    <a href="http://www4.wiwiss.fu-berlin.de/rdf_browser/?browse_uri=http://lcsubjects.org/subjects/sh85062913">Disco</a>
+                    <a href="http://dataviewer.zitgist.com/?uri=http://lcsubjects.org/subjects/sh85062913">Zitgist</a>
+                </td>
+            </tr>
+
+            <tr>
+                <td><a href="http://lcsubjects.org/subjects/sh85082139#concept">Mathematics</a></td>
+                <td>http://lcsubjects.org/subjects/sh85082139#concept</td>
+
+                <td>
+                    <a href="http://demo.openlinksw.com/rdfbrowser/?uri=http://lcsubjects.org/subjects/sh85082139">OpenLink</a>
+                    <a href="http://www4.wiwiss.fu-berlin.de/rdf_browser/?browse_uri=http://lcsubjects.org/subjects/sh85082139">Disco</a>
+                    <a href="http://dataviewer.zitgist.com/?uri=http://lcsubjects.org/subjects/sh85082139">Zitgist</a>
+                </td>
+            </tr>
+
+            <tr>
+
+                <td><a href="http://lcsubjects.org/subjects/sh85020816#concept">Cataloging</a></td>
+                <td>http://lcsubjects.org/subjects/sh85020816#concept</td>
+                <td>
+                    <a href="http://demo.openlinksw.com/rdfbrowser/?uri=http://lcsubjects.org/subjects/sh85020816">OpenLink</a>
+                    <a href="http://www4.wiwiss.fu-berlin.de/rdf_browser/?browse_uri=http://lcsubjects.org/subjects/sh85020816">Disco</a>
+                    <a
+                        href="http://dataviewer.zitgist.com/?uri=http://lcsubjects.org/subjects/sh85020816">Zitgist</a>
+
+                </td>
+            </tr>
+
+            <tr>
+                <td><a href="http://lcsubjects.org/subjects/sh95000541#concept">World Wide Web</a></td>
+                <td>http://lcsubjects.org/subjects/sh95000541#concept</td>
+                <td>
+                    <a href="http://demo.openlinksw.com/rdfbrowser/?uri=http://lcsubjects.org/subjects/sh95000541">OpenLink</a>
+
+                    <a
+                        href="http://www4.wiwiss.fu-berlin.de/rdf_browser/?browse_uri=http://lcsubjects.org/subjects/sh95000541">Disco</a>
+                    <a
+                        href="http://dataviewer.zitgist.com/?uri=http://lcsubjects.org/subjects/sh95000541">Zitgist</a>
+                </td>
+            </tr>
+
+        </table>
+    
+        <p>The code used to convert 
+        <a href="http://www.loc.gov/standards/marcxml/">MARCXML</a> 
+        authority data to RDF, and provide this 
+        web service is available at <a href="http://inkdroid.org/bzr/lcsh">
+
+        http://inkdroid.org/bzr/lcsh</a> using 
+        <a href="http://bazaar-vcs.org/">Bazaar</a>. Questions, comments, 
+        criticisms to <em>ehs at pobox dot com</em></p>
+
+</div>
+
+
+

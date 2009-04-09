@@ -1,0 +1,98 @@
+<div class="concept" about="<%= @authority.uri %>" typeof="skos:Concept">
+<h1 property="skos:prefLabel"><%= @authority.pref_label %></h1>
+<% if @authority.scope_notes
+@authority.scope_notes.each do | note | %>
+    <p property="skos:scopeNote">
+    <%= note %>
+    </p>
+<% end 
+end %>
+<% if @authority.alt_labels %>
+    <b>Use For:</b> 
+    <ul>
+        <% @authority.alt_labels.each do | uf | %>
+            <li><span property="skos:altLabel"><%= uf %></span></li>
+        <% end %>
+    </ul>
+<% end %>
+<% if @authority.broader %>
+    <b>Broader Terms:</b>
+    <ul>
+    <% @authority.broader.each do |broader| %>
+      <% r = grab_resource(broader) %>
+        <li><a rel="skos:broader" href="<%= r.uri %>"><%= r.pref_label %></a></li>
+    <% end %>
+    </ul>
+<% end %>
+<% if @authority.narrower %>
+    <b>Narrower Terms:</b>
+    <ul>
+   <% @authority.narrower.each do | narrower | %>
+     <% nt = grab_resource(narrower) 
+     if nt%>
+        <li><a rel="skos:narrower" href="<%= nt.uri %>"><%= nt.pref_label %></a></li>
+      <% else %>
+        <li>Error: <%= narrower %></li>
+      <% end %>
+    <% end %>
+    </ul>
+<% end %>
+<% if @authority.related %>
+    <b>Related Terms:</b>
+    <ul>
+    <% @authority.related.each do | rel | %>
+      <% r = grab_resource(rel) 
+      if r%>
+        <li><a rel="skos:related" href="<%= r.uri %>"><%= r.pref_label %></a></li>
+      <% else %>
+        <li>Error: <%= rel %></li>
+      <% end %>
+    <% end %>
+    </ul>
+<% end %>
+<% if @authority.editorial_notes %>
+    <b>Editorial Notes:</b>
+    <ul>
+    <% @authority.editorial_notes.each do | note | %>
+        <li property="skos:editorialNote"><%= note %></li>
+    <% end %>
+    </ul>
+<% end %>
+
+    <b>Created:</b>
+    <span property="dcterms:created"><%= @authority.created.to_s %></span>
+    <br />
+    <br />
+
+    <b>Last Modified:</b>
+    <span property="dcterms:modified"><%= @authority.modified.to_s %></span>
+    <br />
+    <br />
+
+    <b>Concept URI:</b>
+    <a href="<%= @authority.uri %>"><%= @authority.uri %></a>
+    <br />
+    <br />
+<% if @authority.in_scheme %>
+    <b>Concept schemes:</b>
+    <ul>
+    <% @authority.in_scheme.each do | scheme | %>
+      <li><%= scheme %></li>
+    <% end %>
+    </ul>
+<% end %>
+    <% if @authority.same_as %>
+      <b>Same as:</b>
+      <ul>
+      <% @authority.same_as.each do | same_as | %>
+        <li><a href="<%= same_as %>"><%= same_as %></a></li>
+      <% end %>
+      </ul>
+    <% end %>    
+
+    <b>Alternate Formats:</b>
+    <% ['rdf','n3','json'].each do | type | %>
+    <a href="<%= params[:id] %>.<%= type %>"><%= type %></a>  
+    <% end %>
+
+</div>

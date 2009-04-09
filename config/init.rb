@@ -28,3 +28,4 @@ end
 
 Merb.add_mime_type(:json, :to_json, %w[application/json])
 Merb.add_mime_type(:rdf, :to_rdfxml, %w[application/rdf+xml])
+Merb.add_mime_type(:n3, :to_ntriples, %w[application/rdf+n3])
