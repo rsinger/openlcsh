@@ -73,6 +73,14 @@ end %>
     <a href="<%= @authority.uri %>"><%= @authority.uri %></a>
     <br />
     <br />
+<% if @authority.in_scheme %>
+    <b>Concept schemes:</b>
+    <ul>
+    <% @authority.in_scheme.each do | scheme | %>
+      <li><%= scheme %></li>
+    <% end %>
+    </ul>
+<% end %>
     <% if @authority.same_as %>
       <b>Same as:</b>
       <ul>

@@ -9,10 +9,8 @@ class Authorities < Application
   def show(id)
     #@authority = Authority.get(id)
     #raise NotFound unless @authority
-    puts @request.uri
     @store = PlatformClient.create
     response = @store.describe_by_id("#{id}#concept")
-    puts response.body.content
     raise NotFound if response.status == 404
     @authority = Authority.new_from_json_response(response.body.content)
     raise NotFound unless @authority

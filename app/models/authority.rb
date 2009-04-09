@@ -9,7 +9,7 @@ class Authority
 #  property :last_modied, DateTime
 #  property :content, Text
   attr_accessor :uri, :pref_label, :editorial_notes, :broader, :narrower, :predicates, :scope_notes, :alt_labels, :json, 
-    :same_as, :related, :created, :modified
+    :same_as, :related, :created, :modified, :in_scheme
   
   def initialize
     @predicates = {}
@@ -70,6 +70,13 @@ class Authority
     end    
     if json[u]['http://purl.org/dc/terms/modified']
       skos.modified = DateTime.parse(json[u]['http://purl.org/dc/terms/modified'][0]['value'])
+    end
+    
+    if json[u]['http://www.w3.org/2004/02/skos/core#inScheme']
+      skos.in_scheme ||=[]
+      json[u]['http://www.w3.org/2004/02/skos/core#inScheme'].each do | scheme |
+        skos.in_scheme << scheme['value']
+      end
     end
     skos
   end

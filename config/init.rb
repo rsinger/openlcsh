@@ -25,3 +25,6 @@ Merb::BootLoader.after_app_loads do
   PlatformConfig.load  
   PlatformClient.create(Merb::Config[:platform])
 end
+
+Merb.add_mime_type(:json, :to_json, %w[application/json])
+Merb.add_mime_type(:rdf, :to_rdfxml, %w[application/rdf+xml])

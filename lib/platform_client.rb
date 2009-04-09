@@ -22,7 +22,6 @@ class PlatformClient
       etag = Pho::Etags.new
       etag.add(cache.uri, cache.etag)
     end
-    puts id
     @store.describe(id, 'application/json', etag)
   end
   def describe(uri, cache=nil)
@@ -31,7 +30,6 @@ class PlatformClient
       etag = Pho::Etags.new
       etag.add(cache.uri, cache.etag)
     end
-    puts uri
     @store.describe(uri, 'application/json', etag)
   end  
 end

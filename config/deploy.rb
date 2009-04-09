@@ -23,7 +23,7 @@ role :db,  "anvil.lisforge.net", :primary => true
 
 namespace :deploy do
   task :symlink_shared do
-    run "ln -s #{shared_path}/platform.yml #{release_path}/config/"
+    run "ln -s #{shared_path}/platform.yml #{current_path}/config/"
   end  
   desc "Restarting mod_rails with restart.txt"
   task :restart, :roles => :app, :except => { :no_release => true } do
