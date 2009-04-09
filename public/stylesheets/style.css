@@ -1,0 +1,39 @@
+body {
+  margin-left: 1%;
+  margin-right: 1%;
+  margin-top: 1%;
+  margin-bottom: 1%;
+  font-family: Courier New, Courier, monospace;
+}
+
+.concept {
+  padding: 3%;
+  background: #ffffee;
+  border: thin black inset;
+  min-height: 500px;
+}
+
+#gearspace {
+    margin: 10px;
+    float: right;
+}
+
+.description {
+  padding: 3%;
+  background: #ffffee;
+  border: thin black inset;
+}
+
+.search {
+  padding: 3%;
+  background: #ffffee;
+  border: thin black inset;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  color: red;
+}
