@@ -71,7 +71,9 @@ class Subject
     if json[u]['http://purl.org/dc/terms/modified']
       skos.modified = DateTime.parse(json[u]['http://purl.org/dc/terms/modified'][0]['value'])
     end
-    
+    if json[u]['http://purl.org/dc/terms/created']
+      skos.created = Date.parse(json[u]['http://purl.org/dc/terms/created'][0]['value'])
+    end    
     if json[u]['http://www.w3.org/2004/02/skos/core#inScheme']
       skos.in_scheme ||=[]
       json[u]['http://www.w3.org/2004/02/skos/core#inScheme'].each do | scheme |
