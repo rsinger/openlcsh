@@ -1,0 +1,5 @@
+platform:
+    store: http://api.talis.com/stores/lcsh-info
+    username: 
+    password: 
+    resource_base_uri: http://lcsubjects.org/subjects/
