@@ -1,5 +1,5 @@
 set :application, "lcsh"
-set :repository,  "file:///home/rsinger/git/lcsh.git"
+set :repository,  "git://github.com/rsinger/openlcsh.git"
 set :local_repository, "ssh://rsinger@anvil.lisforge.net/home/rsinger/git/lcsh.git"
 
 # If you aren't deploying to /u/apps/#{application} on the target
