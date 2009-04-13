@@ -9,15 +9,33 @@ class Subject
 #  property :last_modied, DateTime
 #  property :content, Text
   attr_accessor :uri, :pref_label, :editorial_notes, :broader, :narrower, :predicates, :scope_notes, :alt_labels, :json, 
-    :same_as, :related, :created, :modified, :in_scheme
+    :same_as, :related, :created, :modified, :in_scheme, :rdfxml
   
   def initialize
     @predicates = {}
     
   end
   
+  def self.new_from_platform(response)
+    puts response.header['content-type'].inspect
+    subject = case response.header['content-type'][0]
+    when 'application/json'
+      puts "Well, ok, we matched that.."
+      self.new_from_json_response(response.body.content)
+    when 'application/rdf+xml' then self.new_from_rdfxml_response(response.body.content)
+    else nil
+    end
+    puts subject
+    return subject
+  end
+  
+  def self.new_from_rdfxml_response(content)
+    skos = self.new
+    skos.rdfxml = content
+    skos
+  end
+  
   def self.new_from_json_response(content)
-    @store = PlatformClient.create
     json = JSON.parse(content)
     return nil if json.empty?
     skos = self.new
@@ -108,6 +126,10 @@ class Subject
       end      
     end
     ntriples
+  end
+  
+  def to_rdfxml
+    @rdfxml
   end
     
 

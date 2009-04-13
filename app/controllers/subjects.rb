@@ -7,12 +7,10 @@ class Subjects < Application
   end
 
   def show(id)
-    #@authority = Authority.get(id)
-    #raise NotFound unless @authority
     @store = PlatformClient.create
-    response = @store.describe_by_id("#{id}#concept", request.content_type)
+    response = @store.describe_by_id("#{id}#concept", set_mime_type(content_type))
     raise NotFound if response.status == 404
-    @authority = Subject.new_from_json_response(response.body.content)
+    @authority = Subject.new_from_platform(response)
     raise NotFound unless @authority
     @title = @authority.pref_label
     display @authority

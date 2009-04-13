@@ -15,22 +15,16 @@ class PlatformClient
     @resource_base_uri = config["resource_base_uri"]
   end
   
-  def describe_by_id(id, cache=nil)
-    etag = nil
+  def describe_by_id(id, content_type = nil)
     id = "#{@resource_base_uri}#{id}"
-    if cache
-      etag = Pho::Etags.new
-      etag.add(cache.uri, cache.etag)
-    end
-    @store.describe(id, 'application/json', etag)
+    self.describe(id, content_type)
   end
-  def describe(uri, cache=nil)
-    etag = nil
-    if cache
-      etag = Pho::Etags.new
-      etag.add(cache.uri, cache.etag)
+  
+  def describe(uri, content_type = nil)
+    unless content_type == 'application/rdf+xml'
+      content_type = 'application/json'
     end
-    @store.describe(uri, 'application/json', etag)
+    @store.describe(uri, content_type)
   end  
 end
     

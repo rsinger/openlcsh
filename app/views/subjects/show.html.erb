@@ -5,10 +5,10 @@
     <p property="skos:scopeNote">
     <%= note %>
     </p>
-<% end 
+<% end
 end %>
 <% if @authority.alt_labels %>
-    <b>Use For:</b> 
+    <b>Use For:</b>
     <ul>
         <% @authority.alt_labels.each do | uf | %>
             <li><span property="skos:altLabel"><%= uf %></span></li>
@@ -19,11 +19,11 @@ end %>
     <b>Broader Terms:</b>
     <ul>
     <% @authority.broader.each do |broader| %>
-      <% r = grab_resource(broader) 
+      <% r = grab_resource(broader)
       if r %>
         <li><a rel="skos:broader" href="<%= r.uri %>"><%= r.pref_label %></a></li>
       <% else %>
-        <li><a rel="skos:broader" href="<%= broader %>"><%= broader %></a></li>      
+        <li><a rel="skos:broader" href="<%= broader %>"><%= broader %></a></li>
       <% end %>
     <% end %>
     </ul>
@@ -32,7 +32,7 @@ end %>
     <b>Narrower Terms:</b>
     <ul>
    <% @authority.narrower.each do | narrower | %>
-     <% nt = grab_resource(narrower) 
+     <% nt = grab_resource(narrower)
      if nt%>
         <li><a rel="skos:narrower" href="<%= nt.uri %>"><%= nt.pref_label %></a></li>
       <% else %>
@@ -45,7 +45,7 @@ end %>
     <b>Related Terms:</b>
     <ul>
     <% @authority.related.each do | rel | %>
-      <% r = grab_resource(rel) 
+      <% r = grab_resource(rel)
       if r%>
         <li><a rel="skos:related" href="<%= r.uri %>"><%= r.pref_label %></a></li>
       <% else %>
@@ -62,17 +62,17 @@ end %>
     <% end %>
     </ul>
 <% end %>
-
+ 
     <b>Created:</b>
     <span property="dcterms:created"><%= @authority.created.to_s %></span>
     <br />
     <br />
-
+ 
     <b>Last Modified:</b>
     <span property="dcterms:modified"><%= @authority.modified.to_s %></span>
     <br />
     <br />
-
+ 
     <b>Concept URI:</b>
     <a href="<%= @authority.uri %>"><%= @authority.uri %></a>
     <br />
@@ -92,11 +92,11 @@ end %>
         <li><a href="<%= same_as %>"><%= same_as %></a></li>
       <% end %>
       </ul>
-    <% end %>    
-
+    <% end %>
+ 
     <b>Alternate Formats:</b>
     <% ['rdf','n3','json'].each do | type | %>
-    <a href="<%= params[:id] %>.<%= type %>"><%= type %></a>  
+    <a href="<%= params[:id] %>.<%= type %>"><%= type %></a>
     <% end %>
-
+ 
 </div>
