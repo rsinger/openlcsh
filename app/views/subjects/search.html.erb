@@ -1,0 +1,38 @@
+<h1 style="text-align: center">Library of Congress Subject Headings</h1>
+
+<div class="search">
+    <form action="/search" method="get">
+        <div style="text-align: center">
+            <input type="text" name="q" value="<%= params['q'] %>" />
+            <input type="submit" value="Search" />
+
+        </div>
+        <ol>
+        $for hit in search.results:
+            <li><a typeof="skos:Concept" href="$hit['uri']">$hit['pref_label']</a></li>
+        </ol>
+    </form>
+</div>
+
+<div class="description" style="margin-top: 10px">
+
+    <p>
+    <em>
+    Search results are also available in RDF and JSON using content 
+    negotiation:
+    </em>
+    </p>
+    <pre>
+      curl --header "Accept: application/rdf+xml" http://lcsh.info/search?q=Web
+      curl --header "Accept: application/json" http://lcsh.info/search?q=Web
+    </pre>
+
+</div>
+
+<p style="text-align: center;">
+    <a href="http://validator.w3.org/check?uri=referer">
+    <img src="http://www.w3.org/Icons/valid-xhtml-rdfa"
+         alt="Valid XHTML + RDFa" style="border: none;"/>
+    </a>
+</p>
+

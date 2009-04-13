@@ -60,5 +60,12 @@ class Subjects < Application
       raise InternalServerError
     end
   end
+  
+  def search
+    @results = []
+    if params['q']
+    end
+    display @results   
+  end
 
 end # Authorities
