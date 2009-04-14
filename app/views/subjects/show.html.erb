@@ -45,7 +45,7 @@ end %>
     <b>Related Terms:</b>
     <ul>
     <% @authority.related.each do | rel | %>
-      <% r = grab_resource(rel)
+      <% r = related_resource(rel)
       if r%>
         <li><a rel="skos:related" href="<%= r.uri %>"><%= r.pref_label %></a></li>
       <% else %>
