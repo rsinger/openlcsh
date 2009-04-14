@@ -27,19 +27,19 @@ module Merb
         start = nil
         endpoint = nil
         if search_results.offset > (5*search_results.items_per_page)
-          start = (search_results.offset-search_results.item_per_page)/search_results.items_per_page
+          start = (search_results.offset-search_results.items_per_page)/search_results.items_per_page
           if (search_results.offset/search_results.items_per_page) == total_pages
             endpoint = total_pages
           else
-            endpoint = (search_results.offset+search_results.item_per_page)/search_results.items_per_page
+            endpoint = (search_results.offset+search_results.items_per_page)/search_results.items_per_page
           end
           ranges << (start..endpoint)
         end
-        if endpoint < total_pages
-          bottom = (total_pages-5)
+        if !endpoint || endpoint < total_pages
+          bottom = (total_pages-4)
           rng = (bottom..total_pages)
-          while rng.includes?(endpoint)
-            bottom -= 1
+          while rng.include?(endpoint)
+            bottom += 1
             rng = (bottom..total_pages)
           end
           ranges << rng
@@ -48,6 +48,14 @@ module Merb
         ranges << (0..total_pages)
       end
       ranges
-    end    
+    end   
+    
+    def prev_page_offset(results) 
+      offset = 0
+      if (results.offset - results.items_per_page) > 0
+        offset = (results.offset - results.items_per_page)
+      end
+      offset
+    end
   end
 end # Merb

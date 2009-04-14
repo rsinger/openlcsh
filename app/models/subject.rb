@@ -18,16 +18,13 @@ class Subject
   end
   
   def self.new_from_platform(response)
-    puts response.header['content-type'].inspect
     subject = case response.header['content-type'][0]
     when 'application/json'
-      puts "Well, ok, we matched that.."
       self.new_from_json_response(response.body.content)
     when 'application/rdf+xml' then self.new_from_rdfxml_response(response.body.content)
     when 'application/rss+xml' then self.new_from_rss_response(response.body.content)
     else nil
     end
-    puts subject
     return subject
   end
   

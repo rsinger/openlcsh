@@ -23,12 +23,22 @@
         </ol>
           <% if pages = paginate(@results) %>
             <div class='paginator'>
+            <% if @results.offset > 0 %>
+              <%= link_to '<<', url(:search, :q=>params['q'], :offset=>prev_page_offset(@results),:sort=>params['sort']) %>
+            <% end %>
             <% pages.each do | page |
               if page.is_a?(Range)
                 page.each do | p | %>
                   <%= link_to (p+1), url(:search, :q=>params['q'], :offset=>(p*@results.items_per_page), :sort=>params['sort']) %>
                 <% end %>
+              <% elsif page.is_a?(String) %>
+                ...
+              <% elsif page.is_a?(Fixnum) %>
+                    <%= link_to (p+1), url(:search, :q=>params['q'], :offset=>(page*@results.items_per_page), :sort=>params['sort']) %>
               <% end %>
+            <% end %>
+            <% if @results.offset < (@results.total_results - @results.items_per_page) %>
+              <%= link_to '>>', url(:search, :q=>params['q'], :offset=>(@results.offset+@results.items_per_page), :sort=>params['sort']) %>
             <% end %>
             </div>
           <% end %>        
