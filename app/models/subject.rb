@@ -10,7 +10,7 @@ class Subject
 #  property :last_modied, DateTime
 #  property :content, Text
   attr_accessor :uri, :pref_label, :editorial_notes, :broader, :narrower, :predicates, :scope_notes, :alt_labels, :json, 
-    :same_as, :related, :created, :modified, :in_scheme, :rdfxml
+    :same_as, :related, :created, :modified, :in_scheme, :rdfxml, :lcc
   
   def initialize
     @predicates = {}
@@ -90,6 +90,9 @@ class Subject
     end
     if json[u]['http://purl.org/dc/terms/created']
       skos.created = Date.parse(json[u]['http://purl.org/dc/terms/created'][0]['value'])
+    end    
+    if json[u]['http://purl.org/dc/terms/LCC']
+      skos.lcc = json[u]['http://purl.org/dc/terms/LCC'][0]['value']
     end    
     if json[u]['http://www.w3.org/2004/02/skos/core#inScheme']
       skos.in_scheme ||=[]

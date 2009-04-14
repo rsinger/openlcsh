@@ -72,6 +72,13 @@ end %>
     <span property="dcterms:modified"><%= @authority.modified.to_s %></span>
     <br />
     <br />
+
+<% if @authority.lcc %>
+    <b>LCC:</b>
+    <span property="dcterms:lcc"><%= @authority.lcc %></span>
+    <br />
+    <br />
+<% end %>
  
     <b>Concept URI:</b>
     <a href="<%= @authority.uri %>"><%= @authority.uri %></a>
