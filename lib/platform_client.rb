@@ -34,5 +34,12 @@ class PlatformClient
     search_params = @store.get_search_params(u, query, params)
     @store.client.get(u, search_params)
   end
+  
+  def augment(data)
+    u = @store.build_uri("/services/augment")
+    response = @store.client.post(u, data,{'content-type'=>'application/rss+xml'})
+    return response
+  end
+  
 end
     

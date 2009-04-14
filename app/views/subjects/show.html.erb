@@ -19,7 +19,7 @@ end %>
     <b>Broader Terms:</b>
     <ul>
     <% @authority.broader.each do |broader| %>
-      <% r = grab_resource(broader)
+      <% r = related_resource(broader)
       if r %>
         <li><a rel="skos:broader" href="<%= r.uri %>"><%= r.pref_label %></a></li>
       <% else %>
@@ -32,7 +32,7 @@ end %>
     <b>Narrower Terms:</b>
     <ul>
    <% @authority.narrower.each do | narrower | %>
-     <% nt = grab_resource(narrower)
+     <% nt =related_resource(narrower)
      if nt%>
         <li><a rel="skos:narrower" href="<%= nt.uri %>"><%= nt.pref_label %></a></li>
       <% else %>

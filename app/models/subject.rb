@@ -134,6 +134,45 @@ class Subject
     @rdfxml
   end
   
+  def to_rss
+    rss = "<rdf:RDF xmlns=\"http://purl.org/rss/1.0/\" xmlns:dcterms=\"http://purl.org/dc/terms/\" "          
+    rss << "xmlns:relevance=\"http://a9.com/-/opensearch/extensions/relevance/1.0/\" "
+    rss << "xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" "
+    rss << "xmlns:owl=\"http://www.w3.org/2002/07/owl#\" "
+    rss << "xmlns:os=\"http://a9.com/-/spec/opensearch/1.1/\" " 
+    rss << "xmlns:skos=\"http://www.w3.org/2004/02/skos/core#\">"
+    rss << "<channel rdf:about=\"#{@uri}\">"
+    rss << "<link>#{@uri}</link>"
+    rss << "<title>#{@pref_label}</title>"
+    rss << "<description>#{@pref_label} as found at:  #{@uri}</description>"
+    rss << "<items>"
+    rss << "<rdf:Seq><rdf:li rdf:resource=\"#{@uri}\"/></rdf:Seq>"
+    rss << "</items>"
+    rss << "</channel>"
+    rss << "<item rdf:about=\"#{@uri}\">"
+    rss << "<title>#{@pref_label}</title>"
+    rss << "<link>#{@uri}</link>"
+    if @narrower
+      @narrower.each do | narrower |
+        rss << "<skos:narrower rdf:resource=\"#{narrower}\" />"
+      end
+    end
+    if @broader
+      @broader.each do | broader |
+        rss << "<skos:broader rdf:resource=\"#{broader}\" />"
+      end
+    end
+    
+    if @related
+      @related.each do | rel |
+        rss << "<skos:related rdf:resource=\"#{related}\" />"
+      end
+    end
+    rss << "</item>"
+    rss << "</rdf:RDF>"
+    rss
+  end
+  
   def self.new_from_rss_response(content)
     results = SearchResult.new
     namespaces = {:os=>{'os'=>'http://a9.com/-/spec/opensearch/1.1/'},:rdf=>{'rdf'=>'http://www.w3.org/1999/02/22-rdf-syntax-ns#'},
@@ -149,17 +188,36 @@ class Subject
       results.offset = offset.first.content.to_i
     end    
     doc.xpath('//rss:item', namespaces[:rss]).each do | item |
-      subj = self.new
-      subj.uri = item['about']
-      if pl = item.xpath('./skos:prefLabel', namespaces[:skos])
-        subj.pref_label = pl.first.content
-      end
-      item.xpath('./skos:altLabel', namespaces[:skos]).each do | al |
-        subj.alt_labels ||=[]
-        subj.alt_labels << al.content
-      end
-      results << subj
+      results << self.new_subject_from_rss_item(item)
     end
     results
+  end
+  
+  def self.new_subject_from_rss_item(item)
+    namespaces = {:os=>{'os'=>'http://a9.com/-/spec/opensearch/1.1/'},:rdf=>{'rdf'=>'http://www.w3.org/1999/02/22-rdf-syntax-ns#'},
+      :skos=>{'skos'=>'http://www.w3.org/2004/02/skos/core#'}, :rss=>{'rss'=>'http://purl.org/rss/1.0/'}}    
+    subj = self.new
+    subj.uri = item['about']
+    if pl = item.xpath('./skos:prefLabel', namespaces[:skos])
+      subj.pref_label = pl.first.content
+    end
+    item.xpath('./skos:altLabel', namespaces[:skos]).each do | al |
+      subj.alt_labels ||=[]
+      subj.alt_labels << al.content
+    end
+    subj    
+  end
+  
+  def self.new_from_augment_service(content)
+    related = []
+    namespaces = {:os=>{'os'=>'http://a9.com/-/spec/opensearch/1.1/'},:rdf=>{'rdf'=>'http://www.w3.org/1999/02/22-rdf-syntax-ns#'},
+      :skos=>{'skos'=>'http://www.w3.org/2004/02/skos/core#'}, :rss=>{'rss'=>'http://purl.org/rss/1.0/'}}
+    doc = Nokogiri::XML(content) 
+    doc.xpath('//rss:item', namespaces[:rss]).each do | item |
+      item.xpath('//skos:Concept', namespaces[:skos]).each do | concept |
+        related << self.new_subject_from_rss_item(concept)
+      end
+    end       
+    return related
   end
 end

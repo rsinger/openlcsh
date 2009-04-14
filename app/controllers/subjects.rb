@@ -1,5 +1,5 @@
 class Subjects < Application
-   provides :rdf, :yaml, :json, :n3
+   provides :rdf, :json, :n3, :rss
   require 'platform_client'
   def index
     @authorities = Authority.all

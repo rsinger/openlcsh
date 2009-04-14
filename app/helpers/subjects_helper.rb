@@ -4,6 +4,21 @@ module Merb
       return Subject.new_from_json_response(@store.describe(uri).body.content)
     end
     
+    def related_resource(uri)
+      @related ||={:lookup=>true}
+      if @related[:lookup]
+        resp = @store.augment(@authority.to_rss)
+        relations = Subject.new_from_augment_service(resp.body.content)
+        if relations
+          relations.each do | r |
+            @related[r.uri] = r
+          end
+        end
+        @related.delete(:lookup)
+      end
+      @related[uri]
+    end
+    
     def set_mime_type(format)
       if format == :rdf
         return 'application/rdf+xml'
