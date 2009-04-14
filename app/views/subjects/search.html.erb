@@ -21,17 +21,17 @@
             </li>
         <% end %>
         </ol>
-        <% end %>
-        <% if pages = paginate(@results) %>
-          <div class='paginator'>
-          <% pages.each do | page |
-            if page.is_a?(Range)
-              page.each do | p | %>
-                <%= link_to (p+1), url(:search, :q=>params['q'], :offset=>(p*@results.items_per_page), :sort=>params['sort']) %>
+          <% if pages = paginate(@results) %>
+            <div class='paginator'>
+            <% pages.each do | page |
+              if page.is_a?(Range)
+                page.each do | p | %>
+                  <%= link_to (p+1), url(:search, :q=>params['q'], :offset=>(p*@results.items_per_page), :sort=>params['sort']) %>
+                <% end %>
               <% end %>
             <% end %>
-          <% end %>
-          </div>
+            </div>
+          <% end %>        
         <% end %>
     </form>
 </div>
