@@ -1,4 +1,5 @@
 require 'json'
+require 'nokogiri'
 class Subject
   require 'platform_client'
 #  include DataMapper::Resource
@@ -23,6 +24,7 @@ class Subject
       puts "Well, ok, we matched that.."
       self.new_from_json_response(response.body.content)
     when 'application/rdf+xml' then self.new_from_rdfxml_response(response.body.content)
+    when 'application/rss+xml' then self.new_from_rss_response(response.body.content)
     else nil
     end
     puts subject
@@ -131,6 +133,33 @@ class Subject
   def to_rdfxml
     @rdfxml
   end
-    
-
+  
+  def self.new_from_rss_response(content)
+    results = SearchResult.new
+    namespaces = {:os=>{'os'=>'http://a9.com/-/spec/opensearch/1.1/'},:rdf=>{'rdf'=>'http://www.w3.org/1999/02/22-rdf-syntax-ns#'},
+      :skos=>{'skos'=>'http://www.w3.org/2004/02/skos/core#'}, :rss=>{'rss'=>'http://purl.org/rss/1.0/'}}
+    doc = Nokogiri::XML(content)
+    if total = doc.xpath('//rss:channel/os:totalResults', namespaces[:rss].merge(namespaces[:os]))
+      results.total_results = total.first.content.to_i
+    end
+    if items_per_page = doc.xpath('//rss:channel/os:itemsPerPage', namespaces[:rss].merge(namespaces[:os]))
+      results.items_per_page = items_per_page.first.content.to_i
+    end  
+    if offset = doc.xpath('//rss:channel/os:startIndex', namespaces[:rss].merge(namespaces[:os]))
+      results.offset = offset.first.content.to_i
+    end    
+    doc.xpath('//rss:item', namespaces[:rss]).each do | item |
+      subj = self.new
+      subj.uri = item['about']
+      if pl = item.xpath('./skos:prefLabel', namespaces[:skos])
+        subj.pref_label = pl.first.content
+      end
+      item.xpath('./skos:altLabel', namespaces[:skos]).each do | al |
+        subj.alt_labels ||=[]
+        subj.alt_labels << al.content
+      end
+      results << subj
+    end
+    results
+  end
 end

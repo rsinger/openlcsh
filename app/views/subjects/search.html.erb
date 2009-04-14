@@ -7,10 +7,32 @@
             <input type="submit" value="Search" />
 
         </div>
-        <ol>
-        $for hit in search.results:
-            <li><a typeof="skos:Concept" href="$hit['uri']">$hit['pref_label']</a></li>
+        
+        
+        <% if @results %>
+          <div><%= @results.total_results %> matches to your search</div>
+          <ol start="<%= (@results.offset + 1) %>">
+          <%
+          @results.results.each do | result | %>
+            <li><a typeof="skos:Concept" href="<%= result.uri %>"><%= result.pref_label %></a>
+            <% if result.alt_labels %>
+              <br />Use for <em><%= result.alt_labels.join("</em>; <em>") %></em>
+            <% end %>
+            </li>
+        <% end %>
         </ol>
+        <% end %>
+        <% if pages = paginate(@results) %>
+          <div class='paginator'>
+          <% pages.each do | page |
+            if page.is_a?(Range)
+              page.each do | p | %>
+                <%= link_to (p+1), url(:search, :q=>params['q'], :offset=>(p*@results.items_per_page), :sort=>params['sort']) %>
+              <% end %>
+            <% end %>
+          <% end %>
+          </div>
+        <% end %>
     </form>
 </div>
 

@@ -34,3 +34,4 @@ dependency "dm-serializer", dm_gems_version
 dependency "merb_datamapper", merb_gems_version
 
 dependency "pho", "0.4"
+dependency "nokogiri", "1.2.3"

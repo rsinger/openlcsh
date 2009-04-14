@@ -20,3 +20,4 @@ gems/gems/*
 gems/specifications/*
 merb_profile_results
 config/platform.yml
+config/deploy.rb

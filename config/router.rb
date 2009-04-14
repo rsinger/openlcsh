@@ -41,5 +41,5 @@ Merb::Router.prepare do
   
   # Change this for your home page to be available at /
   match('/').to(:controller => 'welcome', :action =>'index')
-  match('/search').to(:controller => 'subjects', :action=>'search')
+  match('/search').to(:controller => 'subjects', :action=>'search').name('search')
 end

@@ -60,8 +60,19 @@ class Subjects < Application
   end
   
   def search
-    @results = []
+    @results = nil
+    @title = 'Search LCSubjects.org'
     if params['q']
+      opts = {}
+      opts['max'] = params['max']||25
+      opts['offset'] = params['offset']||0
+      if params['sort']
+        opts['sort'] = params['sort']
+      end
+      @store = PlatformClient.create
+      response = @store.search(params['q'], opts)
+      @results = Subject.new_from_platform(response)
+      @title << ": #{params['q']}"
     end
     display @results   
   end

@@ -26,5 +26,13 @@ class PlatformClient
     end
     @store.describe(uri, content_type)
   end  
+  
+  # This is a workaround to a bug in Pho:
+  # http://rubyforge.org/tracker/index.php?func=detail&aid=25356&group_id=7855&atid=30426
+  def search(query, params={})
+    u = @store.build_uri('/items')
+    search_params = @store.get_search_params(u, query, params)
+    @store.client.get(u, search_params)
+  end
 end
     
