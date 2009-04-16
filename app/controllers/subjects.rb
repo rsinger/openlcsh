@@ -2,7 +2,11 @@ class Subjects < Application
    provides :rdf, :json, :n3, :rss
   require 'platform_client'
   def index
-    @authorities = Authority.all
+    @store = PlatformClient.create
+    response = @store.search('type:', opts)
+    @results = Subject.new_from_platform(response)
+    @title << ": #{params['q']}"    
+    @authorities = 
     display @authorities
   end
 

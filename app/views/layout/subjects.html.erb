@@ -1,6 +1,31 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN"
+    "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+   xmlns:dcterms="http://purl.org/dc/terms/" xml:lang="en-us" lang="en-us">
   <head>
+  <head profile="http://www.w3.org/2003/g/data-view">
+  <link 
+      rel="transformation" 
+      href="http://ns.inria.fr/grddl/rdfa/2008/03/28/RDFa2RDFXML.xsl" />
+
+  <link 
+      rel="alternate" 
+      type="application/rdf+xml" 
+      href="<%= Merb::config[:platform]["resource_base_uri"]+params[:id] %>.rdf" />
+
+  <link 
+      rel="alternate" 
+      type="text/n3" 
+      href="<%= Merb::config[:platform]["resource_base_uri"]+params[:id] %>.n3" />
+
+  <link 
+      rel="alternate" 
+      type="application/json" 
+      href="<%= Merb::config[:platform]["resource_base_uri"]+params[:id] %>.json" />
+
     <title>LCSubjects.org:  <%= @title %></title>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <link rel="stylesheet" href="/stylesheets/style.css" type="text/css" media="screen" charset="utf-8" />
