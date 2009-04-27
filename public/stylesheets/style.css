@@ -30,6 +30,12 @@ body {
   border: thin black inset;
 }
 
+.login {
+  padding: 3%;
+  background: #ffffee;
+  border: thin black inset;
+}
+
 a {
   text-decoration: none;
 }

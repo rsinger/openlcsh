@@ -35,3 +35,4 @@ dependency "merb_datamapper", merb_gems_version
 
 dependency "pho", "0.4"
 dependency "nokogiri", "1.2.3"
+dependency 'ruby-openid', :require_as => 'openid'

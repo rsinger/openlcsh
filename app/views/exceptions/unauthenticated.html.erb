@@ -1,0 +1,9 @@
+<div class='login'>
+<h3>Please Choose an OpenID Provider</h3>
+<form method="POST" action="/openid/login">
+  <% session[:login_location] = params[:location] %>
+  <input type="text" name="openid_url" size="50" />
+  <!-- optional hidden value used in requesting unprotected OpenID login page scenario -->
+  <input type="submit" name="submit" value="Login" class="submit" />
+</form>
+</div>

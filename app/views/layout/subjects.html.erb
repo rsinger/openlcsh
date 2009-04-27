@@ -4,8 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
-   xmlns:dcterms="http://purl.org/dc/terms/" xml:lang="en-us" lang="en-us">
-  <head>
+   xmlns:dcterms="http://purl.org/dc/terms/" xml:lang="en-us">
   <head profile="http://www.w3.org/2003/g/data-view">
   <link 
       rel="transformation" 
@@ -31,7 +30,12 @@
     <link rel="stylesheet" href="/stylesheets/style.css" type="text/css" media="screen" charset="utf-8" />
   </head>
   <body>
-  <%= link_to 'Home', '/' %> |   <%= link_to 'Search', url(:search) %> |   <%= link_to 'SPARQL', 'http://api.talis.com/stores/lcsh-info/services/sparql' %> 
+  <%= link_to 'Home', '/' %> |   <%= link_to 'Search', url(:search) %> |   <%= link_to 'SPARQL', 'http://api.talis.com/stores/lcsh-info/services/sparql' %> |
+  <% unless session.user %>
+    <a href="/openid/login?location=<%= "#{request.env['REQUEST_URI']}" %>">Login</a></span></li>
+  <% else %>
+    Logged in as <%= session.user.identity_url %>
+  <% end %>
     <%#= message[:notice] %>
     <%= catch_content :for_layout %>
   </body>
