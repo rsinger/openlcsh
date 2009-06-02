@@ -10,7 +10,7 @@ class Subject
 #  property :last_modied, DateTime
 #  property :content, Text
   attr_accessor :uri, :pref_label, :editorial_notes, :broader, :narrower, :predicates, :scope_notes, :alt_labels, :json, 
-    :same_as, :related, :created, :modified, :in_scheme, :rdfxml, :lcc
+    :same_as, :related, :created, :modified, :in_scheme, :rdfxml, :lcc, :close_matches
   
   def initialize
     @predicates = {}
@@ -84,7 +84,13 @@ class Subject
       json[u]['http://www.w3.org/2004/02/skos/core#narrower'].each do | narrower |
         skos.narrower << narrower['value']
       end
-    end    
+    end   
+    if json[u]['http://www.w3.org/2004/02/skos/core#closeMatch']
+      skos.close_matches ||=[]
+      json[u]['http://www.w3.org/2004/02/skos/core#closeMatch'].each do | close_match |
+        skos.close_matches << close_match['value']
+      end
+    end     
     if json[u]['http://purl.org/dc/terms/modified']
       skos.modified = DateTime.parse(json[u]['http://purl.org/dc/terms/modified'][0]['value'])
     end
@@ -167,6 +173,12 @@ class Subject
         rss << "<skos:related rdf:resource=\"#{rel}\" />"
       end
     end
+    
+    if @close_matches
+      @close_matches.each do | close_match |
+        rss << "<skos:closeMatch rdf:resource=\"#{close_match}\" />"
+      end
+    end    
     rss << "</item>"
     rss << "</rdf:RDF>"
     rss

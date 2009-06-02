@@ -100,7 +100,15 @@ end %>
       <% end %>
       </ul>
     <% end %>
- 
+    
+    <% if @authority.close_matches %>
+      <b>Similar concepts from other vocabularies</b>
+      <ul>
+      <% @authority.close_matches.each do | close_match | %>
+        <li><a href="<%= close_match %>"><%= close_match %></a></li>
+      <% end %>
+      </ul>
+    <% end %>
     <b>Alternate Formats:</b>
     <% ['rdf','nt','json'].each do | type | %>
     <a href="<%= params[:id] %>.<%= type %>"><%= type %></a>
