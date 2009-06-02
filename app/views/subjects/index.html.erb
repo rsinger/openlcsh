@@ -1,4 +1,56 @@
-<h1>Authorities controller, index action</h1>
+<h1 style="text-align: center">Library of Congress Subject Headings</h1>
 
-<p>Edit this file in <tt>app/views/authorities/index.html.erb</tt></p>
-<p>For more information and examples of CRUD views read <a href="http://wiki.merbivore.com/howto/crud_view_example_with_merb_using_erb"> this wiki page</a>
+<div class="search">
+    <form action="/search" method="get">
+        <div style="text-align: center">
+            <input type="text" name="q" value="<%= params['q'] %>" />
+            <input type="submit" value="Search" />
+
+        </div>
+        
+        
+        <% if @results %>
+          <div><%= @results.total_results %> matches to your search</div>
+          <ol start="<%= (@results.offset + 1) %>">
+          <%
+          @results.results.each do | result | %>
+            <li><a typeof="skos:Concept" href="<%= result.uri %>"><%= result.pref_label %></a>
+            <% if result.alt_labels %>
+              <br />Use for <em><%= result.alt_labels.join("</em>; <em>") %></em>
+            <% end %>
+            </li>
+        <% end %>
+        </ol>
+          <% if pages = paginate(@results) %>
+            <div class='paginator'>
+            <% if @results.offset > 0 %>
+              <%= link_to '<<', url(:default, :offset=>prev_page_offset(@results)) %>
+            <% end %>
+            <% pages.each do | page |
+              if page.is_a?(Range)
+                page.each do | p | %>
+                  <%= link_to (p+1), url(:default, :offset=>(p*@results.items_per_page)) %>
+                <% end %>
+              <% elsif page.is_a?(String) %>
+                ...
+              <% elsif page.is_a?(Fixnum) %>
+                    <%= link_to (p+1), url(:default, :offset=>(page*@results.items_per_page)) %>
+              <% end %>
+            <% end %>
+            <% if @results.offset < (@results.total_results - @results.items_per_page) %>
+              <%= link_to '>>', url(:default, :offset=>(@results.offset+@results.items_per_page)) %>
+            <% end %>
+            </div>
+          <% end %>        
+        <% end %>
+    </form>
+</div>
+
+
+<p style="text-align: center;">
+    <a href="http://validator.w3.org/check?uri=referer">
+    <img src="http://www.w3.org/Icons/valid-xhtml-rdfa"
+         alt="Valid XHTML + RDFa" style="border: none;"/>
+    </a>
+</p>
+

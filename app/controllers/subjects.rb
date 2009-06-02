@@ -3,11 +3,11 @@ class Subjects < Application
   require 'platform_client'
   def index
     @store = PlatformClient.create
-    response = @store.search('type:', opts)
-    @results = Subject.new_from_platform(response)
-    @title << ": #{params['q']}"    
-    @authorities = 
-    display @authorities
+    opts = {:max=>100,'offset'=>(params['offset']||0),:sort=>'preflabel'}
+    response = @store.search('*:*', opts)
+    @results = Subject.new_from_rss_response(response.body.content)
+    @title = 'All LCSH'
+    display @results
   end
 
   def show(id)

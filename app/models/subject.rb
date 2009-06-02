@@ -178,7 +178,7 @@ class Subject
       :skos=>{'skos'=>'http://www.w3.org/2004/02/skos/core#'}, :rss=>{'rss'=>'http://purl.org/rss/1.0/'}}
     doc = Nokogiri::XML(content)
     if total = doc.xpath('//rss:channel/os:totalResults', namespaces[:rss].merge(namespaces[:os]))
-      results.total_results = total.first.content.to_i
+      results.total_results = total.first.content.to_i if total.first
     end
     if items_per_page = doc.xpath('//rss:channel/os:itemsPerPage', namespaces[:rss].merge(namespaces[:os]))
       results.items_per_page = items_per_page.first.content.to_i
@@ -198,7 +198,7 @@ class Subject
     subj = self.new
     subj.uri = item['about']
     if pl = item.xpath('./skos:prefLabel', namespaces[:skos])
-      subj.pref_label = pl.first.content
+      subj.pref_label = pl.first.content if pl.first
     end
     item.xpath('./skos:altLabel', namespaces[:skos]).each do | al |
       subj.alt_labels ||=[]
