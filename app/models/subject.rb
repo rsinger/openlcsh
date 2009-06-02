@@ -165,7 +165,7 @@ class Subject
     
     if @related
       @related.each do | rel |
-        rss << "<skos:related rdf:resource=\"#{related}\" />"
+        rss << "<skos:related rdf:resource=\"#{rel}\" />"
       end
     end
     rss << "</item>"
