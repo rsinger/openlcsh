@@ -3,7 +3,7 @@ class Subjects < Application
   require 'platform_client'
   def index
     @store = PlatformClient.create
-    opts = {:max=>100,'offset'=>(params['offset']||0),:sort=>'preflabel'}
+    opts = {:max=>50,'offset'=>(params['offset']||0),:sort=>'preflabel'}
     response = @store.search('*:*', opts)
     @results = Subject.new_from_rss_response(response.body.content)
     @title = 'All LCSH'
