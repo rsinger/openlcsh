@@ -28,5 +28,5 @@ end
 
 Merb.add_mime_type(:json, :to_json, %w[application/json])
 Merb.add_mime_type(:rdf, :to_rdfxml, %w[application/rdf+xml])
-Merb.add_mime_type(:n3, :to_ntriples, %w[application/rdf+n3])
+Merb.add_mime_type(:nt, :to_ntriples, %w[text/plain])
 Merb.add_mime_type(:rss, :to_rss, %w[application/rdf+xml])

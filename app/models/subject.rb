@@ -112,7 +112,6 @@ class Subject
     @json[@uri].keys.each do | predicate |
       @json[@uri][predicate].each do | triple |
         ntriples << "<#{@uri}> <#{predicate}> "
-        puts triple.inspect
         if triple['type'] == 'uri'
           ntriples << "<#{triple['value']}>"
         else

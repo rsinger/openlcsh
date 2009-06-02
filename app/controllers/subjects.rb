@@ -1,5 +1,5 @@
 class Subjects < Application
-   provides :rdf, :json, :n3, :rss
+   provides :rdf, :json, :nt, :rss
   require 'platform_client'
   def index
     @store = PlatformClient.create
