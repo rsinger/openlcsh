@@ -1,5 +1,5 @@
 # dependencies are generated using a strict version, don't forget to edit the dependency versions when upgrading.
-merb_gems_version = "1.0.11"
+merb_gems_version = "1.0.12"
 dm_gems_version   = "0.9.11"
 do_gems_version   = "0.9.11"
 
@@ -20,7 +20,6 @@ dependency "merb-auth-more", merb_gems_version
 dependency "merb-auth-slice-password", merb_gems_version
 dependency "merb-param-protection", merb_gems_version
 dependency "merb-exceptions", merb_gems_version
-
 dependency "data_objects", do_gems_version
 dependency "do_sqlite3", do_gems_version # If using another database, replace this
 dependency "dm-core", dm_gems_version         

@@ -43,3 +43,9 @@ a {
 a:hover {
   color: red;
 }
+#map {
+    width: 500px; 
+    height: 300px;
+    float: right;
+    border : thin black inset;
+}

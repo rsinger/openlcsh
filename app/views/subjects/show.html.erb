@@ -1,5 +1,8 @@
 <div class="concept" about="<%= @authority.uri %>" typeof="skos:Concept">
 <h1 property="skos:prefLabel"><%= @authority.pref_label %></h1>
+<% if @authority.latitude && @authority.longitude %>
+  <div id="map"></div>
+<% end %>
 <% if @authority.scope_notes
 @authority.scope_notes.each do | note | %>
     <p property="skos:scopeNote">
@@ -92,6 +95,21 @@ end %>
     <% end %>
     </ul>
 <% end %>
+
+<% if @authority.latitude && @authority.longitude %>
+  <b>Coordinates:</b>
+  <span property="wgs84:lat"><%= @authority.latitude -%></span> / <span property="wgs84:long"><%= @authority.longitude -%></span>
+  <br />
+  <br />
+<% end %>
+    <% if @authority.location %>
+      <b>Locations:</b>
+      <ul>
+      <% @authority.location.each do | location | %>
+        <li><a href="<%= location -%>" rel="wgs84:location" resource="<%= location -%>"><%= location -%></a></li>
+      <% end %>
+      </ul>
+    <% end %>
     <% if @authority.same_as %>
       <b>Same as:</b>
       <ul>
@@ -113,5 +131,6 @@ end %>
     <% ['rdf','nt','json'].each do | type | %>
     <a href="<%= params[:id] %>.<%= type %>"><%= type %></a>
     <% end %>
- 
+
 </div>
+

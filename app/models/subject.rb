@@ -10,7 +10,7 @@ class Subject
 #  property :last_modied, DateTime
 #  property :content, Text
   attr_accessor :uri, :pref_label, :editorial_notes, :broader, :narrower, :predicates, :scope_notes, :alt_labels, :json, 
-    :same_as, :related, :created, :modified, :in_scheme, :rdfxml, :lcc, :close_matches
+    :same_as, :related, :created, :modified, :in_scheme, :rdfxml, :lcc, :close_matches, :latitude, :longitude, :location
   
   def initialize
     @predicates = {}
@@ -106,6 +106,18 @@ class Subject
         skos.in_scheme << scheme['value']
       end
     end
+    if json[u]['http://www.w3.org/2003/01/geo/wgs84_pos#location']
+      skos.location ||=[]
+      json[u]['http://www.w3.org/2003/01/geo/wgs84_pos#location'].each do | location |
+        skos.location << location['value']
+      end
+    end 
+    if json[u]['http://www.w3.org/2003/01/geo/wgs84_pos#lat']
+      skos.latitude = json[u]['http://www.w3.org/2003/01/geo/wgs84_pos#lat'][0]['value']
+    end       
+    if json[u]['http://www.w3.org/2003/01/geo/wgs84_pos#long']
+      skos.longitude = json[u]['http://www.w3.org/2003/01/geo/wgs84_pos#long'][0]['value']
+    end    
     skos
   end
 

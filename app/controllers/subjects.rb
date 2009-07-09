@@ -1,5 +1,7 @@
 class Subjects < Application
-   provides :rdf, :json, :nt, :rss
+   provides :rdf, :json, :nt, :rss, :atom
+   before :machine_only, :only => [:update]
+   
   require 'platform_client'
   def index
     @store = PlatformClient.create
@@ -43,14 +45,18 @@ class Subjects < Application
     end
   end
 
-  def update(id, authority)
-    @authority = Authority.get(id)
+  def update(id, rdf)
+    #only_provides :nt
+    @store = PlatformClient.create
+    response = @store.describe_by_id("#{id}#concept")
+    raise NotFound if response.status == 404
+    @authority = Subject.new_from_platform(response)
     raise NotFound unless @authority
-    if @authority.update_attributes(authority)
-       redirect resource(@authority)
-    else
-      display @authority, :edit
-    end
+    #if @authority.update_attributes(authority)
+    #   redirect resource(@authority)
+    #else
+    render(rdf, :format=>:nt)
+    #end
   end
 
   def destroy(id)
@@ -80,5 +86,11 @@ class Subjects < Application
     end
     display @results   
   end
+  
+  private
+  def machine_only
+    ensure_authenticated Merb::Authentication::Strategies::Basic::OpenID
+  end
+  
 
 end # Authorities

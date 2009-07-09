@@ -1,0 +1,15 @@
+<entry xmlns="http://www.w3.org/2005/Atom">
+  <id><%= @authority.uri %></id>
+  <title><%= @authority.pref_label %></title>
+  <updated><%= @authority.modified %></updated>
+  <link rel="alternate" type="text/html" href="<%= @authority.uri.sub(/#concept/,'.html') %>" />
+  <link rel="alternate" type="text/plain" href="<%= @authority.uri.sub(/#concept/,'.nt') %>" />
+  <link rel="alternate" type="application/json" href="<%= @authority.uri.sub(/#concept/,'.json') %>" />
+  <link rel="alternate" type="application/rdf+xml" href="<%= @authority.uri.sub(/#concept/,'.rdf') %>" />
+  <% if @authority.related 
+    @authority.related.each do | rel | %>
+  <link rel="related" type="application/atom+xml" href="<%= @authority.uri.sub(/#concept/,'.atom') %>" />
+    <% end 
+  end %>
+  
+</entry>

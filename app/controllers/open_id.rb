@@ -19,15 +19,24 @@ class OpenId < Merb::Controller
      
     if user.update_attributes(attributes)
       session.user = user
-      redirect url(:user, session.user.id), :message => { :notice => 'Signup was successful' }
+      #redirect url(:user, session.user.id), :message => { :notice => 'Signup was successful' }
+      redirect url(session[:login_location])
     else
       message[:error] = 'There was an error while creating your user account'
       redirect(url(:openid), {:location=>params[:location]})
     end
   end
+
+  def signout
+    session.user = nil
+    redirect(params['location'])
+  end
+  
   private
  
   def ensure_openid_url
     throw :halt, redirect(url(:openid)) if session['openid.url'].nil?
   end
+  
+
 end
