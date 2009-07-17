@@ -10,7 +10,8 @@ class Subject
 #  property :last_modied, DateTime
 #  property :content, Text
   attr_accessor :uri, :pref_label, :editorial_notes, :broader, :narrower, :predicates, :scope_notes, :alt_labels, :json, 
-    :same_as, :related, :created, :modified, :in_scheme, :rdfxml, :lcc, :close_matches, :latitude, :longitude, :location
+    :same_as, :related, :created, :modified, :in_scheme, :rdfxml, :lcc, :close_matches, :latitude, :longitude, :location,
+    :exact_matches
   
   def initialize
     @predicates = {}
@@ -91,6 +92,12 @@ class Subject
         skos.close_matches << close_match['value']
       end
     end     
+    if json[u]['http://www.w3.org/2004/02/skos/core#exactMatch']
+      skos.exact_matches ||=[]
+      json[u]['http://www.w3.org/2004/02/skos/core#exactMatch'].each do | exact_match |
+        skos.exact_matches << exact_match['value']
+      end
+    end    
     if json[u]['http://purl.org/dc/terms/modified']
       skos.modified = DateTime.parse(json[u]['http://purl.org/dc/terms/modified'][0]['value'])
     end
