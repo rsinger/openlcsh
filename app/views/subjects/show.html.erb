@@ -118,7 +118,14 @@ end %>
       <% end %>
       </ul>
     <% end %>
-    
+    <% if @authority.exact_matches %>
+      <b>Identical concepts from other vocabularies</b>
+      <ul>
+      <% @authority.exact_matches.each do | exact_match | %>
+        <li><a href="<%= exact_match %>"><%= exact_match %></a></li>
+      <% end %>
+      </ul>
+    <% end %>    
     <% if @authority.close_matches %>
       <b>Similar concepts from other vocabularies</b>
       <ul>
