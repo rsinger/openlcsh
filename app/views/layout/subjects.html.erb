@@ -94,7 +94,7 @@
     <% end %>
   </head>
   <body onload="init();">
-  <%= link_to 'Home', '/' %> |   <%= link_to 'Search', url(:search) %> |   <%= link_to 'SPARQL', 'http://api.talis.com/stores/lcsh-info/services/sparql' %> |
+  <%= link_to 'Home', '/' %> |   <%= link_to 'Search', url(:search) %> |   <%= link_to 'SPARQL', 'http://api.talis.com/stores/lcsh-info/items/sparql/spared.html' %> |
   <% unless session.user %>
     <a href="/openid/login?location=<%= "#{request.env['REQUEST_URI']}" %>">Login</a></span></li>
   <% else %>
