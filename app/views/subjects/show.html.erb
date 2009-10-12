@@ -1,136 +1,122 @@
 <div class="concept" about="<%= @authority.uri %>" typeof="skos:Concept">
-<h1 property="skos:prefLabel"><%= @authority.pref_label %></h1>
-<% if @authority.latitude && @authority.longitude %>
+<h1 property="skos:prefLabel"><%= @authority.skos["prefLabel"] %></h1>
+<% if @authority.wgs84 and @authority.wgs84["latitude"] && @authority.wgs84["longitude"] %>
   <div id="map"></div>
 <% end %>
-<% if @authority.scope_notes
-@authority.scope_notes.each do | note | %>
+<% if @authority.skos["scopeNote"]
+    [*@authority.skos["scopeNote"]].each do | note | %>
     <p property="skos:scopeNote">
     <%= note %>
     </p>
-<% end
-end %>
-<% if @authority.alt_labels %>
+<% end 
+end
+%>
+<% if @authority.skos["altLabel"] %>
     <b>Use For:</b>
     <ul>
-        <% @authority.alt_labels.each do | uf | %>
+        <% [*@authority.skos["altLabel"]].each do | uf | %>
             <li><span property="skos:altLabel"><%= uf %></span></li>
         <% end %>
     </ul>
 <% end %>
-<% if @authority.broader %>
+<% if @authority.skos["broader"] %>
     <b>Broader Terms:</b>
     <ul>
-    <% @authority.broader.each do |broader| %>
-      <% r = related_resource(broader)
-      if r %>
-        <li><a rel="skos:broader" href="<%= r.uri %>"><%= r.pref_label %></a></li>
-      <% else %>
-        <li><a rel="skos:broader" href="<%= broader %>"><%= broader %></a></li>
-      <% end %>
+    <% [*@authority.skos["broader"]].each do |broader| 
+      broader.describe if broader.empty_graph? %>
+      <li><a rel="skos:broader" href="<%= broader.uri %>"><%= broader.skos["prefLabel"] %></a></li>
     <% end %>
     </ul>
 <% end %>
-<% if @authority.narrower %>
+<% if @authority.skos["narrower"] %>
     <b>Narrower Terms:</b>
     <ul>
-   <% @authority.narrower.each do | narrower | %>
-     <% nt =related_resource(narrower)
-     if nt%>
-        <li><a rel="skos:narrower" href="<%= nt.uri %>"><%= nt.pref_label %></a></li>
-      <% else %>
-        <li><a rel="skos:narrower" href="<%= narrower %>"><%= narrower %></a></li>
-      <% end %>
+   <% [*@authority.skos["narrower"]].each do | narrower | 
+     narrower.describe if narrower.empty_graph?
+     %>
+      <li><a rel="skos:narrower" href="<%= narrower.uri %>"><%= narrower.skos["prefLabel"] %></a></li>
     <% end %>
     </ul>
 <% end %>
 <% if @authority.related %>
     <b>Related Terms:</b>
     <ul>
-    <% @authority.related.each do | rel | %>
-      <% r = related_resource(rel)
-      if r%>
-        <li><a rel="skos:related" href="<%= r.uri %>"><%= r.pref_label %></a></li>
-      <% else %>
-        <li><a rel="skos:related" href="<%= rel %>"><%= rel %></a></li>
-      <% end %>
+    <% [*@authority.skos["related"]].each do | rel | %>
+      rel.describe if rel.empty_graph?
+      %>
+      <li><a rel="skos:related" href="<%= rel.uri %>"><%= rel.skos["prefLabel"] %></a></li>
     <% end %>
     </ul>
 <% end %>
-<% if @authority.editorial_notes %>
+<% if @authority.skos["editorialNote"] %>
     <b>Editorial Notes:</b>
     <ul>
-    <% @authority.editorial_notes.each do | note | %>
+    <% [*@authority.skos["editorialNote"]].each do | note | %>
         <li property="skos:editorialNote"><%= note %></li>
     <% end %>
     </ul>
 <% end %>
  
     <b>Created:</b>
-    <span property="dcterms:created"><%= @authority.created.to_s %></span>
+    <span property="dcterms:created"><%= @authority.dcterms["created"].to_s %></span>
     <br />
     <br />
  
     <b>Last Modified:</b>
-    <span property="dcterms:modified"><%= @authority.modified.to_s %></span>
+    <span property="dcterms:modified"><%= @authority.dcterms["modified"].to_s %></span>
     <br />
     <br />
-
-<% if @authority.lcc %>
-    <b>LCC:</b>
-    <span property="dcterms:lcc"><%= @authority.lcc %></span>
-    <br />
-    <br />
-<% end %>
  
     <b>Concept URI:</b>
     <a href="<%= @authority.uri %>"><%= @authority.uri %></a>
     <br />
     <br />
-<% if @authority.in_scheme %>
+<% if @authority.skos["inScheme"] %>
     <b>Concept schemes:</b>
     <ul>
-    <% @authority.in_scheme.each do | scheme | %>
-      <li><%= scheme %></li>
+    <% [*@authority.skos["inScheme"]].each do | scheme | %>
+      <li><%= scheme.uri %></li>
     <% end %>
     </ul>
 <% end %>
 
-<% if @authority.latitude && @authority.longitude %>
+<% if @authority.wgs84 
+  if @authority.wgs84['latitude'] && @authority.wgs84['longitude'] %>
   <b>Coordinates:</b>
-  <span property="wgs84:lat"><%= @authority.latitude -%></span> / <span property="wgs84:long"><%= @authority.longitude -%></span>
+  <span property="wgs84:lat"><%= @authority.wgs84['latitude'] -%></span> / <span property="wgs84:long"><%= @authority.wgs84['longitude'] -%></span>
   <br />
   <br />
 <% end %>
-    <% if @authority.location %>
+    <% if @authority.wgs84['location'] %>
       <b>Locations:</b>
       <ul>
-      <% @authority.location.each do | location | %>
-        <li><a href="<%= location -%>" rel="wgs84:location" resource="<%= location -%>"><%= location -%></a></li>
+      <% [*@authority.wgs84['location']].each do | location | %>
+        <li><a href="<%= location.uri -%>" rel="wgs84:location" resource="<%= location.uri -%>"><%= location -%></a></li>
       <% end %>
       </ul>
-    <% end %>
-    <% if @authority.same_as %>
+    <% end 
+  end
+  if @authority.owl['sameAs'] %>
       <b>Same as:</b>
       <ul>
-      <% @authority.same_as.each do | same_as | %>
-        <li><a href="<%= same_as %>"><%= same_as %></a></li>
+      <% [*@authority.owl['sameAs']].each do | same_as | %>
+        <li><a href="<%= same_as.uri %>" rel="owl:sameAs" resource="<%= same_as.uri -%>"><%= same_as.uri %></a></li>
       <% end %>
       </ul>
     <% end %>
-    <% if @authority.exact_matches %>
+    <% if @authority.skos['exactMatch'] %>
       <b>Identical concepts from other vocabularies:</b>
       <ul>
-      <% @authority.exact_matches.each do | exact_match | %>
-        <li><a href="<%= exact_match %>"><%= exact_match %></a></li>
+      <% [*@authority.skos['exactMatch']].each do | exact_match | %>
+        <li><a href="<%= exact_match.uri %>" rel="skos:exactMatch" resource="<%= exact_match.uri -%>"><%= exact_match.uri %></a></li>
       <% end %>
       </ul>
     <% end %>    
-    <% if @authority.close_matches %>
+    <% if @authority.skos['closeMatch'] %>
       <b>Similar concepts from other vocabularies:</b>
       <ul>
-      <% @authority.close_matches.each do | close_match | %>
-        <li><a href="<%= close_match %>"><%= close_match %></a></li>
+      <% [*@authority.skos['closeMatch']].each do | close_match | %>
+        <li><a href="<%= close_match.uri %>"><%= close_match.uri %></a></li>
       <% end %>
       </ul>
     <% end %>

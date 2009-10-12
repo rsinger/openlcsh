@@ -27,26 +27,29 @@ module Merb
     end
     
     def paginate(search_results)
-      total_pages = search_results.total_results.divmod(search_results.items_per_page)[0]
+      total_results = search_results["http://a9.com/-/spec/opensearch/1.1/totalResults"].to_i
+      items_per_page = search_results["http://a9.com/-/spec/opensearch/1.1/itemsPerPage"].to_i
+      offset = search_results["http://a9.com/-/spec/opensearch/1.1/startIndex"].to_i
+      total_pages = total_results.divmod(items_per_page)[0]
       return nil if total_pages < 1
       ranges = []
       if total_pages > 10        
-        if search_results.offset != (5*search_results.items_per_page)
+        if offset != (5*items_per_page)
           ranges << (0..4)
         end
-        if search_results.offset == (5*search_results.items_per_page)
+        if offset == (5*items_per_page)
           ranges << (5..6)
         else
           ranges << '...'
         end
         start = nil
         endpoint = nil
-        if search_results.offset > (5*search_results.items_per_page)
-          start = (search_results.offset-search_results.items_per_page)/search_results.items_per_page
-          if (search_results.offset/search_results.items_per_page) == total_pages
+        if offset > (5*items_per_page)
+          start = (offset-items_per_page)/items_per_page
+          if (offset/items_per_page) == total_pages
             endpoint = total_pages
           else
-            endpoint = (search_results.offset+search_results.items_per_page)/search_results.items_per_page
+            endpoint = (offset+items_per_page)/items_per_page
           end
           ranges << (start..endpoint)
         end
@@ -67,8 +70,9 @@ module Merb
     
     def prev_page_offset(results) 
       offset = 0
-      if (results.offset - results.items_per_page) > 0
-        offset = (results.offset - results.items_per_page)
+      items_per_page = results["http://a9.com/-/spec/opensearch/1.1/itemsPerPage"].to_i      
+      if (results["http://a9.com/-/spec/opensearch/1.1/startIndex"].to_i - items_per_page) > 0
+        offset = (results["http://a9.com/-/spec/opensearch/1.1/startIndex"].to_i - items_per_page)
       end
       offset
     end

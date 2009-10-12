@@ -17,6 +17,7 @@ end
  
 Merb::BootLoader.before_app_loads do
   # This will get executed after dependencies have been loaded but before your app's classes have loaded.
+  require 'lib/merb_patch'
 end
  
 Merb::BootLoader.after_app_loads do
@@ -24,6 +25,10 @@ Merb::BootLoader.after_app_loads do
   require 'platform_config'
   PlatformConfig.load  
   PlatformClient.create(Merb::Config[:platform])
+  Curie.add_prefixes! :skos=>"http://www.w3.org/2004/02/skos/core#", :lcsh=>'http://LCSubjects.org/vocab/1#',
+   :owl=>'http://www.w3.org/2002/07/owl#', :wgs84 => 'http://www.w3.org/2003/01/geo/wgs84_pos#', :dcterms => 'http://purl.org/dc/terms/'
+  RDFObject::HTTPClient.register_proxy('http://lcsubjects.org/', RDFObject::TalisPlatformProxy.new('lcsh-info'))
+  
 end
 
 Merb.add_mime_type(:json, :to_json, %w[application/json])

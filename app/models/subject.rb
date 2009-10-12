@@ -1,203 +1,129 @@
-require 'json'
-require 'nokogiri'
-class Subject
+module Subject
   require 'platform_client'
-#  include DataMapper::Resource
-  
-#  property :id, Serial
-#  property :uri, String
-#  property :etag, String
-#  property :last_modied, DateTime
-#  property :content, Text
-  attr_accessor :uri, :pref_label, :editorial_notes, :broader, :narrower, :predicates, :scope_notes, :alt_labels, :json, 
-    :same_as, :related, :created, :modified, :in_scheme, :rdfxml, :lcc, :close_matches, :latitude, :longitude, :location,
-    :exact_matches
-  
-  def initialize
-    @predicates = {}
-    
-  end
-  
-  def self.new_from_platform(response)
-    subject = case response.header['content-type'][0]
-    when 'application/json'
-      self.new_from_json_response(response.body.content)
-    when 'application/rdf+xml' then self.new_from_rdfxml_response(response.body.content)
-    when 'application/rss+xml' then self.new_from_rss_response(response.body.content)
-    else nil
-    end
-    return subject
-  end
-  
-  def self.new_from_rdfxml_response(content)
-    skos = self.new
-    skos.rdfxml = content
-    skos
-  end
-  
-  def self.new_from_json_response(content)
-    json = JSON.parse(content)
-    return nil if json.empty?
-    skos = self.new
-    u = json.keys[0]
-    skos.uri = u
-    skos.json = json
-    skos.pref_label = json[u]['http://www.w3.org/2004/02/skos/core#prefLabel'][0]['value']
-    skos.predicates[:@pref_label] = 'http://www.w3.org/2004/02/skos/core#prefLabel'
-    if json[u]['http://www.w3.org/2004/02/skos/core#editorialNote']
-      skos.editorial_notes ||=[] 
-      json[u]['http://www.w3.org/2004/02/skos/core#editorialNote'].each do | note |
-        skos.editorial_notes << note['value']
-      end
-    end
-    if json[u]['http://www.w3.org/2004/02/skos/core#scopeNote']
-      skos.scope_notes ||=[] 
-      json[u]['http://www.w3.org/2004/02/skos/core#scopeNote'].each do | note |
-        skos.scope_notes << note['value']
-      end
-    end 
-    if json[u]['http://www.w3.org/2004/02/skos/core#altLabel']
-      skos.alt_labels ||=[] 
-      json[u]['http://www.w3.org/2004/02/skos/core#altLabel'].each do | alt |
-        skos.alt_labels << alt['value']
-      end
-    end 
-    if json[u]['http://www.w3.org/2004/02/skos/core#related']
-      skos.related ||=[] 
-      json[u]['http://www.w3.org/2004/02/skos/core#related'].each do | rel |
-        skos.related << rel['value']
-      end
-    end          
-    if json[u]['http://www.w3.org/2002/07/owl#sameAs']
-      skos.same_as ||= []
-      json[u]['http://www.w3.org/2002/07/owl#sameAs'].each do | same_as |
-        skos.same_as << same_as['value']
-      end
-    end
-    if json[u]['http://www.w3.org/2004/02/skos/core#broader']
-      skos.broader ||=[]
-      json[u]['http://www.w3.org/2004/02/skos/core#broader'].each do | broader |
-        skos.broader << broader['value']
-      end
-    end
-    if json[u]['http://www.w3.org/2004/02/skos/core#narrower']
-      skos.narrower ||=[]
-      json[u]['http://www.w3.org/2004/02/skos/core#narrower'].each do | narrower |
-        skos.narrower << narrower['value']
-      end
-    end   
-    if json[u]['http://www.w3.org/2004/02/skos/core#closeMatch']
-      skos.close_matches ||=[]
-      json[u]['http://www.w3.org/2004/02/skos/core#closeMatch'].each do | close_match |
-        skos.close_matches << close_match['value']
-      end
-    end     
-    if json[u]['http://www.w3.org/2004/02/skos/core#exactMatch']
-      skos.exact_matches ||=[]
-      json[u]['http://www.w3.org/2004/02/skos/core#exactMatch'].each do | exact_match |
-        skos.exact_matches << exact_match['value']
-      end
-    end    
-    if json[u]['http://purl.org/dc/terms/modified']
-      skos.modified = DateTime.parse(json[u]['http://purl.org/dc/terms/modified'][0]['value'])
-    end
-    if json[u]['http://purl.org/dc/terms/created']
-      skos.created = Date.parse(json[u]['http://purl.org/dc/terms/created'][0]['value'])
-    end    
-    if json[u]['http://purl.org/dc/terms/LCC']
-      skos.lcc = json[u]['http://purl.org/dc/terms/LCC'][0]['value']
-    end    
-    if json[u]['http://www.w3.org/2004/02/skos/core#inScheme']
-      skos.in_scheme ||=[]
-      json[u]['http://www.w3.org/2004/02/skos/core#inScheme'].each do | scheme |
-        skos.in_scheme << scheme['value']
-      end
-    end
-    if json[u]['http://www.w3.org/2003/01/geo/wgs84_pos#location']
-      skos.location ||=[]
-      json[u]['http://www.w3.org/2003/01/geo/wgs84_pos#location'].each do | location |
-        skos.location << location['value']
-      end
-    end 
-    if json[u]['http://www.w3.org/2003/01/geo/wgs84_pos#lat']
-      skos.latitude = json[u]['http://www.w3.org/2003/01/geo/wgs84_pos#lat'][0]['value']
-    end       
-    if json[u]['http://www.w3.org/2003/01/geo/wgs84_pos#long']
-      skos.longitude = json[u]['http://www.w3.org/2003/01/geo/wgs84_pos#long'][0]['value']
-    end    
-    skos
-  end
 
   def to_json
-    @json.to_json
+    json = {self.uri=>{}}
+    Curie.get_mappings.each_pair do |key, value|
+      if self.respond_to?(key.to_sym)
+        self.send(key.to_sym).each_pair do | predicate, objects |
+          pred = Curie.parse "[#{key}:#{predicate}]"
+          json[self.uri][pred] = []          
+          [*objects].each do | object |
+            obj = {}
+            if object.is_a?(RDFObject::ResourceReference)
+              obj["value"] = "#{object.uri}"
+              obj["type"] = "uri"
+            else
+              obj["value"] = object
+              obj["type"] = "literal"
+              if object.language
+                obj["lang"] = "#{object.language}"
+              end
+              if object.data_type
+                obj["datatype"] =  "#{object.data_type}"
+              end            
+            end
+            json[self.uri][pred] << obj  
+          end
+        end
+      end
+    end
+    json.to_json
   end
   
   def to_ntriples
-    ntriples = ''
-    @json[@uri].keys.each do | predicate |
-      @json[@uri][predicate].each do | triple |
-        ntriples << "<#{@uri}> <#{predicate}> "
-        if triple['type'] == 'uri'
-          ntriples << "<#{triple['value']}>"
-        else
-          ntriples << "\"#{triple['value']}\""
-          if triple['lang']
-            ntriples << "@#{triple['lang']}"
-          end
-          if triple['datatype']
-            ntriples << "^^<#{triple['datatype']}>"
+    ntriples = ""
+    Curie.get_mappings.each_pair do |key, value|
+      if self.respond_to?(key.to_sym)
+        self.send(key.to_sym).each_pair do | predicate, objects |
+          [*objects].each do | object |
+            ntriples << "<#{self.uri}> <#{Curie.parse "[#{key}:#{predicate}]"}> "
+            if object.is_a?(RDFObject::ResourceReference)
+              ntriples << " <#{object.uri}> "
+            else
+              ntriples << "#{object.to_json}"
+              if object.language
+                ntriples << "@#{object.language}"
+              end
+              if object.data_type
+                ntriples << "^^<#{object.data_type}>"
+              end              
+            end
+            ntriples << " . \n"          
           end
         end
-        ntriples << " .\n"
-      end      
+      end
     end
     ntriples
   end
   
   def to_rdfxml
-    @rdfxml
+    rdf = "<rdf:RDF"
+    Curie.get_mappings.each_pair do |key, value|
+      next unless self.respond_to?(key.to_sym)
+      rdf << " xmlns:#{key}=\"#{value}\""
+    end
+    unless rdf.match("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+      rdf << " xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\""
+    end
+    rdf <<"><rdf:Description rdf:about=\"#{self.uri}\">"
+    Curie.get_mappings.each_pair do |key, value|
+      if self.respond_to?(key.to_sym)
+        self.send(key.to_sym).each_pair do | predicate, objects |
+          [*objects].each do | object |
+            rdf << "<#{key}:#{predicate}"
+            if object.is_a?(RDFObject::ResourceReference)
+              rdf << " rdf:resource=\"#{object.uri}\" />"
+            else
+              if object.language
+                rdf << " xml:lang=\"#{object.language}\""
+              end
+              if object.data_type
+                rdf << " rdf:datatype=\"#{object.data_type}\""
+              end
+              rdf << ">#{CGI.escapeHTML(object)}</#{key}:#{predicate}>"
+            end
+          end
+        end
+      end
+    end
+    rdf << "</rdf:Description></rdf:RDF>"
+    rdf
   end
   
   def to_rss
-    rss = "<rdf:RDF xmlns=\"http://purl.org/rss/1.0/\" xmlns:dcterms=\"http://purl.org/dc/terms/\" "          
+    rss = "<rdf:RDF xmlns=\"http://purl.org/rss/1.0/\" "
+    Curie.get_mappings.each_pair do |key, value|
+      next unless self.respond_to?(key.to_sym)
+      rss << "xmlns:#{key}=\"#{value}\" "
+    end
     rss << "xmlns:relevance=\"http://a9.com/-/opensearch/extensions/relevance/1.0/\" "
-    rss << "xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" "
-    rss << "xmlns:owl=\"http://www.w3.org/2002/07/owl#\" "
-    rss << "xmlns:os=\"http://a9.com/-/spec/opensearch/1.1/\" " 
-    rss << "xmlns:skos=\"http://www.w3.org/2004/02/skos/core#\">"
-    rss << "<channel rdf:about=\"#{@uri}\">"
-    rss << "<link>#{@uri}</link>"
-    rss << "<title>#{@pref_label}</title>"
-    rss << "<description>#{@pref_label} as found at:  #{@uri}</description>"
+    rss << "xmlns:os=\"http://a9.com/-/spec/opensearch/1.1/\">" 
+    rss << "<channel rdf:about=\"#{self.uri}\">"
+    rss << "<link>#{self.uri}</link>"
+    rss << "<title>#{CGI.escapeHTML(self.skos['prefLabel'])}</title>"
+    rss << "<description>#{CGI.escapeHTML(self.skos['prefLabel'])} as found at:  #{self.uri}</description>"
     rss << "<items>"
-    rss << "<rdf:Seq><rdf:li rdf:resource=\"#{@uri}\"/></rdf:Seq>"
+    rss << "<rdf:Seq><rdf:li rdf:resource=\"#{self.uri}\"/></rdf:Seq>"
     rss << "</items>"
     rss << "</channel>"
-    rss << "<item rdf:about=\"#{@uri}\">"
-    rss << "<title>#{@pref_label}</title>"
-    rss << "<link>#{@uri}</link>"
-    if @narrower
-      @narrower.each do | narrower |
-        rss << "<skos:narrower rdf:resource=\"#{narrower}\" />"
+    rss << "<item rdf:about=\"#{self.uri}\">"
+    rss << "<title>#{CGI.escapeHTML(self.skos['prefLabel'])}</title>"
+    rss << "<link>#{self.uri}</link>"
+    Curie.get_mappings.each_pair do |key, value|
+      if self.respond_to?(key.to_sym)
+        self.send(key.to_sym).each_pair do | predicate, objects |
+          [*objects].each do | object |
+            rss << "<#{key}:#{predicate}"
+            if object.is_a?(RDFObject::ResourceReference)
+              rss << " rdf:resource=\"#{object.uri}\" />"
+            else
+              rss << ">#{CGI.escapeHTML(object)}</#{key}:#{predicate}>"
+            end
+          end
+        end
       end
-    end
-    if @broader
-      @broader.each do | broader |
-        rss << "<skos:broader rdf:resource=\"#{broader}\" />"
-      end
-    end
-    
-    if @related
-      @related.each do | rel |
-        rss << "<skos:related rdf:resource=\"#{rel}\" />"
-      end
-    end
-    
-    if @close_matches
-      @close_matches.each do | close_match |
-        rss << "<skos:closeMatch rdf:resource=\"#{close_match}\" />"
-      end
-    end    
+    end     
     rss << "</item>"
     rss << "</rdf:RDF>"
     rss

@@ -1,3 +1,5 @@
+
+
 class PlatformClient
   @@client = nil
   private_class_method :new
@@ -24,7 +26,14 @@ class PlatformClient
     unless content_type == 'application/rdf+xml'
       content_type = 'application/json'
     end
-    @store.describe(uri, content_type)
+    response = @store.describe(uri, content_type)
+    return nil if response.status == 404
+    collection = RDFObject::Collection.new
+    collection.parse(response.body.content)
+
+    collection[uri].extend(Subject)
+
+    return [collection[uri], collection]
   end  
   
   # This is a workaround to a bug in Pho:
@@ -32,14 +41,45 @@ class PlatformClient
   def search(query, params={})
     u = @store.build_uri('/items')
     search_params = @store.get_search_params(u, query, params)
-    @store.client.get(u, search_params)
+    response = @store.client.get(u, search_params)
+    uri = URI.parse(u)
+    q = []
+    search_params.each_pair do | key, value |
+      q << "#{key}=#{CGI.escape(value.to_s)}"
+    end
+    uri.query = q.join("&")
+    collection = RDFObject::Collection.new
+    collection.parse(response.body.content)
+    return [collection[uri.to_s], collection]
   end
   
   def augment(data)
     u = @store.build_uri("/services/augment")
+    puts "Sending to augment service:  " + Time.now.to_s
     response = @store.client.post(u, data,{'content-type'=>'application/rss+xml'})
+    puts "Return from augment service:  " + Time.now.to_s
+    collection = RDFObject::Parser.parse(response.body.content)
+    puts "RDFObjects parsed:  " + Time.now.to_s
+    collection.uris.each do | resource |
+      resource.extend(Subject)
+    end
     return response
   end
   
+  def construct_related_preflabels(uri, collection=RDFObject::Collection.new)
+    query = "PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    CONSTRUCT {?obj skos:prefLabel ?pref}
+    WHERE  {
+       { <#{uri}> skos:narrower ?obj } UNION
+       { <#{uri}> skos:broader ?obj } UNION
+       { <#{uri}> skos:related ?obj }
+       { ?obj skos:prefLabel ?pref } .
+    }"
+    response = @store.sparql_construct(query, "application/json")
+    collection.parse(response.body.content)
+    collection
+  end
+  
 end
+
     

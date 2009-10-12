@@ -10,35 +10,37 @@
         
         
         <% if @results %>
-          <div><%= @results.total_results %> matches to your search</div>
-          <ol start="<%= (@results.offset + 1) %>">
+          <div><%= @results["http://a9.com/-/spec/opensearch/1.1/totalResults"] %> matches to your search</div>
+          <ol start="<%= (@results["http://a9.com/-/spec/opensearch/1.1/startIndex"].to_i + 1) %>">
           <%
-          @results.results.each do | result | %>
-            <li><a typeof="skos:Concept" href="<%= result.uri %>"><%= result.pref_label %></a>
-            <% if result.alt_labels %>
-              <br />Use for <em><%= result.alt_labels.join("</em>; <em>") %></em>
+          if @results["http://purl.org/rss/1.0/items"] && @results["http://purl.org/rss/1.0/items"].rdf && @results["http://purl.org/rss/1.0/items"].rdf["li"]
+            [*@results["http://purl.org/rss/1.0/items"].rdf["li"]].each do | result | %>
+            <li><a typeof="skos:Concept" href="<%= result.uri %>"><%= result.skos["prefLabel"] %></a>
+            <% if result.skos["altLabel"] %>
+              <br />Use for <em><%= [*result.skos["altLabel"]].join("</em>; <em>") %></em>
             <% end %>
             </li>
-        <% end %>
+        <% end
+        end %>
         </ol>
           <% if pages = paginate(@results) %>
             <div class='paginator'>
-            <% if @results.offset > 0 %>
+            <% if @results["http://a9.com/-/spec/opensearch/1.1/startIndex"].to_i > 0 %>
               <%= link_to '<<', url(:search, :q=>params['q'], :offset=>prev_page_offset(@results),:sort=>params['sort']) %>
             <% end %>
             <% pages.each do | page |
               if page.is_a?(Range)
                 page.each do | p | %>
-                  <%= link_to (p+1), url(:search, :q=>params['q'], :offset=>(p*@results.items_per_page), :sort=>params['sort']) %>
+                  <%= link_to (p+1), url(:search, :q=>params['q'], :offset=>(p*@results["http://a9.com/-/spec/opensearch/1.1/itemsPerPage"].to_i), :sort=>params['sort']) %>
                 <% end %>
               <% elsif page.is_a?(String) %>
                 ...
               <% elsif page.is_a?(Fixnum) %>
-                    <%= link_to (p+1), url(:search, :q=>params['q'], :offset=>(page*@results.items_per_page), :sort=>params['sort']) %>
+                    <%= link_to (p+1), url(:search, :q=>params['q'], :offset=>(page*@results["http://a9.com/-/spec/opensearch/1.1/itemsPerPage"].to_i), :sort=>params['sort']) %>
               <% end %>
             <% end %>
-            <% if @results.offset < (@results.total_results - @results.items_per_page) %>
-              <%= link_to '>>', url(:search, :q=>params['q'], :offset=>(@results.offset+@results.items_per_page), :sort=>params['sort']) %>
+            <% if @results["http://a9.com/-/spec/opensearch/1.1/startIndex"].to_i < (@results["http://a9.com/-/spec/opensearch/1.1/totalResults"].to_i - @results["http://a9.com/-/spec/opensearch/1.1/itemsPerPage"].to_i) %>
+              <%= link_to '>>', url(:search, :q=>params['q'], :offset=>(@results["http://a9.com/-/spec/opensearch/1.1/startIndex"].to_i+@results["http://a9.com/-/spec/opensearch/1.1/itemsPerPage"].to_i), :sort=>params['sort']) %>
             <% end %>
             </div>
           <% end %>        
