@@ -1,4 +1,9 @@
 <div class="concept" about="<%= @authority.uri %>" typeof="skos:Concept">
+  <ul class="alternativeFormats">
+    <% ['rdf','nt','json'].each do | type | %>
+    <li><a href="<%= params[:id] %>.<%= type %>"><%= type %></a></li>
+    <% end %>
+  </ul>
 <h1 property="skos:prefLabel"><%= @authority.skos["prefLabel"] %></h1>
 <% if @authority.wgs84 and @authority.wgs84["latitude"] && @authority.wgs84["longitude"] %>
   <div id="map"></div>
@@ -13,9 +18,11 @@ end
 %>
 <% if @authority.skos["altLabel"] %>
     <b>Use For:</b>
-    <ul>
+    <ul class="altLabel">
         <% [*@authority.skos["altLabel"]].each do | uf | %>
-            <li><span property="skos:altLabel"><%= uf %></span></li>
+            <li><span property="skos:altLabel"
+            <% if uf == [*@authority.skos["altLabel"]].last %>
+             class="altLabelLast"<% end %>><%= uf %></span></li>
         <% end %>
     </ul>
 <% end %>
@@ -56,14 +63,23 @@ end
     <% end %>
     </ul>
 <% end %>
+
+<% if @authority.dcterms["source"] %>
+    <b>Source<% if [*@authority.dcterms["source"]].length > 1 %>s<% end %>:</b>
+    <ul>
+    <% [*@authority.dcterms["source"]].each do | source | %>
+        <li property="skos:editorialNote"><%= source %></li>
+    <% end %>
+    </ul>
+<% end %>
  
     <b>Created:</b>
-    <span property="dcterms:created"><%= @authority.dcterms["created"].to_s %></span>
+    <span property="dcterms:created" content="<%= @authority.dcterms["created"] -%>"><%= date_display(@authority.dcterms["created"]) %></span>
     <br />
     <br />
  
     <b>Last Modified:</b>
-    <span property="dcterms:modified"><%= @authority.dcterms["modified"].to_s %></span>
+    <span property="dcterms:modified" content="<%= @authority.dcterms["modified"] -%>"><%= date_display(@authority.dcterms["modified"]) %></span>
     <br />
     <br />
  
@@ -120,10 +136,7 @@ end
       <% end %>
       </ul>
     <% end %>
-    <b>Alternate Formats:</b>
-    <% ['rdf','nt','json'].each do | type | %>
-    <a href="<%= params[:id] %>.<%= type %>"><%= type %></a>
-    <% end %>
+
 
 </div>
 

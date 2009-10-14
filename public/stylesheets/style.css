@@ -3,31 +3,36 @@ body {
   margin-right: 1%;
   margin-top: 1%;
   margin-bottom: 1%;
-  font-family: Courier New, Courier, monospace;
+  font-family: "arial","helvetica","verdana", sans-serif
 }
 
 .concept {
-  padding: 3%;
-  background: #ffffee;
-  border: thin black inset;
+  padding-left: 3%;
+  padding-right: 3%;
+  padding-top: 0px;
+  background: #fff;
+  border-top: thin black inset;
+  border-left: thin black inset;
+  -moz-border-radius-topleft: 5px;
+  -webkit-border-top-left-radius: 25px;
   min-height: 500px;
 }
 
-#gearspace {
-    margin: 10px;
-    float: right;
-}
-
 .description {
-  padding: 3%;
-  background: #ffffee;
+  padding-left: 3%;
+  padding-right: 3%;
+  padding-top: 0px;
+  background: #fff;
   border: thin black inset;
 }
 
 .search {
   padding: 3%;
-  background: #ffffee;
-  border: thin black inset;
+  background: #fff;
+  border-top: thin black inset;
+  border-left: thin black inset;
+  -moz-border-radius-topleft: 5px;
+  -webkit-border-top-left-radius: 25px;
 }
 
 .login {
@@ -48,4 +53,35 @@ a:hover {
     height: 300px;
     float: right;
     border : thin black inset;
+}
+
+ul.altLabel li {
+  display: inline;
+}
+ul.altLabel li:after {
+	content: "; ";
+	}
+		
+ul.altLabel li.altLabelLast:after {
+	content: ". ";
+	}
+ul.navMenu {
+  margin-left:  30px;
+}
+ul.navMenu li {
+  display: inline;
+  border-left: thin solid black;
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-bottom: 0px;
+}
+
+ul.alternativeFormats {  
+  float: right;
+}
+
+ul.alternativeFormats li {
+    display: inline;
+    padding-left: 5px;
+    padding-right: 5px;
 }

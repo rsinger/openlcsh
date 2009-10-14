@@ -94,12 +94,17 @@
     <% end %>
   </head>
   <body onload="init();">
-  <%= link_to 'Home', '/' %> |   <%= link_to 'Search', url(:search) %> |   <%= link_to 'SPARQL', 'http://api.talis.com/stores/lcsh-info/items/sparql/spared.html' %> |
+    <ul class="navMenu">
+      <li> <%= link_to 'Home', '/' %></li>
+      <li><%= link_to 'Search', url(:search) %></li>
+      <li><%= link_to 'SPARQL', 'http://api.talis.com/stores/lcsh-info/items/sparql/spared.html' %></li>
+    
   <% unless session.user %>
-    <a href="/openid/login?location=<%= "#{request.env['REQUEST_URI']}" %>">Login</a></span></li>
+    <li><a href="/openid/login?location=<%= "#{request.env['REQUEST_URI']}" %>">Login</a></span></li>
   <% else %>
-    Logged in as <%= session.user.identity_url %>  [<a href="/openid/signout?location=<%= "#{request.env['REQUEST_URI']}" %>">Logout</a>]
+    <li>Logged in as <%= session.user.identity_url %>  [<a href="/openid/signout?location=<%= "#{request.env['REQUEST_URI']}" %>">Logout</a>]</li>
   <% end %>
+  </ul>
     <%#= message[:notice] %>
     <%= catch_content :for_layout %>
 

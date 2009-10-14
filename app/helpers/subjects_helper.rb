@@ -76,5 +76,12 @@ module Merb
       end
       offset
     end
+    
+    def date_display(date)
+      unless date.is_a?(DateTime)
+        date = DateTime.parse(date)
+      end
+      date.strftime("%A, %B %d, %Y - %I:%m:%S %p")
+    end
   end
 end # Merb
