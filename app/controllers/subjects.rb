@@ -13,7 +13,10 @@ class Subjects < Application
 
   def show(id)
     @store = PlatformClient.create
-    @authority, @collection = @store.describe_by_id("#{id}#concept", set_mime_type(content_type))
+    unless id =~ /#concept$/
+      id << "#concept"
+    end
+    @authority, @collection = @store.describe_by_id(id, set_mime_type(content_type))
     raise NotFound if @authority.nil?
     @store.construct_related_preflabels(@authority.uri, @collection)
     @title = @authority.skos['prefLabel']
