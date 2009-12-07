@@ -1,7 +1,7 @@
 <div class="concept" about="<%= @authority.uri %>" typeof="skos:Concept">
   <ul class="alternativeFormats">
     <% ['rdf','nt','json'].each do | type | %>
-    <li><a href="<%= params[:id] %>.<%= type %>"><%= type %></a></li>
+    <li><a href="<%= params[:id].sub(/\#concept/,""}) %>.<%= type %>"><%= type %></a></li>
     <% end %>
   </ul>
 <h1 property="skos:prefLabel"><%= @authority.skos["prefLabel"] %></h1>
