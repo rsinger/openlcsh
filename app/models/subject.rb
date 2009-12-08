@@ -30,65 +30,10 @@ module Subject
     end
     json.to_json
   end
-  
-  def to_ntriples
-    ntriples = ""
-    Curie.get_mappings.each_pair do |key, value|
-      if self.respond_to?(key.to_sym)
-        self.send(key.to_sym).each_pair do | predicate, objects |
-          [*objects].each do | object |
-            ntriples << "<#{self.uri}> <#{Curie.parse "[#{key}:#{predicate}]"}> "
-            if object.is_a?(RDFObject::ResourceReference)
-              ntriples << " <#{object.uri}> "
-            else
-              ntriples << "#{object.to_json}"
-              if object.language
-                ntriples << "@#{object.language}"
-              end
-              if object.data_type
-                ntriples << "^^<#{object.data_type}>"
-              end              
-            end
-            ntriples << " . \n"          
-          end
-        end
-      end
-    end
-    ntriples
-  end
+
   
   def to_rdfxml
-    rdf = "<rdf:RDF"
-    Curie.get_mappings.each_pair do |key, value|
-      next unless self.respond_to?(key.to_sym)
-      rdf << " xmlns:#{key}=\"#{value}\""
-    end
-    unless rdf.match("http://www.w3.org/1999/02/22-rdf-syntax-ns#")
-      rdf << " xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\""
-    end
-    rdf <<"><rdf:Description rdf:about=\"#{self.uri}\">"
-    Curie.get_mappings.each_pair do |key, value|
-      if self.respond_to?(key.to_sym)
-        self.send(key.to_sym).each_pair do | predicate, objects |
-          [*objects].each do | object |
-            rdf << "<#{key}:#{predicate}"
-            if object.is_a?(RDFObject::ResourceReference)
-              rdf << " rdf:resource=\"#{object.uri}\" />"
-            else
-              if object.language
-                rdf << " xml:lang=\"#{object.language}\""
-              end
-              if object.data_type
-                rdf << " rdf:datatype=\"#{object.data_type}\""
-              end
-              rdf << ">#{CGI.escapeHTML(object)}</#{key}:#{predicate}>"
-            end
-          end
-        end
-      end
-    end
-    rdf << "</rdf:Description></rdf:RDF>"
-    rdf
+    self.to_xml
   end
   
   def to_rss
