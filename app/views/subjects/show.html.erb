@@ -5,7 +5,7 @@
     <% end %>
   </ul>
 <h1 property="skos:prefLabel"><%= @authority.skos["prefLabel"] %></h1>
-<% if @authority.wgs84 and @authority.wgs84["latitude"] && @authority.wgs84["longitude"] %>
+<% if @authority.wgs84 and @authority.wgs84["lat"] && @authority.wgs84["long"] %>
   <div id="map"></div>
 <% end %>
 <% if @authority.skos["scopeNote"]
