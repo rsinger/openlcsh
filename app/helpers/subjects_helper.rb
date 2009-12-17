@@ -83,5 +83,33 @@ module Merb
       end
       date.strftime("%A, %B %d, %Y - %I:%m:%S %p")
     end
+    def generate_facet_link(uri)
+      u = URI.parse(uri)
+      q = CGI.parse(u.query)
+      url = "/search?q=#{CGI.escape(q["query"].first)}"
+      if params[:offset]
+        url << "&offset=#{params[:offset]}"
+      end
+      url
+    end
+    
+    def scheme_labels(scheme)
+      label = case scheme.uri
+      when "http://lcsubjects.org/schemes/conceptScheme" then "LCSubjects.org"
+      when "http://lcsubjects.org/schemes/authorizedHeadings" then "LC Authorized Headings"
+      when "http://lcsubjects.org/schemes/topicalTerms" then "Topical Terms"
+      when "http://lcsubjects.org/schemes/geographicNames" then "Geographic Names"
+      when "http://lcsubjects.org/schemes/corporateNames" then "Corporate Names"
+      when "http://lcsubjects.org/schemes/personalNames" then "Personal Names"
+      when "http://lcsubjects.org/schemes/generalSubdivision" then "General Subdivisions"
+      when "http://lcsubjects.org/schemes/uniformTitles" then "Uniform Titles"
+      when "http://lcsubjects.org/schemes/formSubdivision" then "Form Subdivisions"
+      when "http://lcsubjects.org/schemes/chronologicalSubdivision" then "Chronological Subdivisions"
+      when "http://lcsubjects.org/schemes/genreFormTerms" then "Genre/Form Terms"
+      when "http://lcsubjects.org/schemes/meetings" then "Meetings"
+      when "http://lcsubjects.org/schemes/geographicSubdivision" then "Geographic Subdivisions"
+      end
+      label
+    end
   end
 end # Merb

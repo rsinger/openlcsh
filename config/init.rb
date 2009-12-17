@@ -26,7 +26,8 @@ Merb::BootLoader.after_app_loads do
   PlatformConfig.load  
   PlatformClient.create(Merb::Config[:platform])
   Curie.add_prefixes! :skos=>"http://www.w3.org/2004/02/skos/core#", :lcsh=>'http://LCSubjects.org/vocab/1#',
-   :owl=>'http://www.w3.org/2002/07/owl#', :wgs84 => 'http://www.w3.org/2003/01/geo/wgs84_pos#', :dcterms => 'http://purl.org/dc/terms/'
+   :owl=>'http://www.w3.org/2002/07/owl#', :wgs84 => 'http://www.w3.org/2003/01/geo/wgs84_pos#', :dcterms => 'http://purl.org/dc/terms/',
+   :umbel=>'http://umbel.org/umbel#'
   RDFObject::HTTPClient.register_proxy('http://lcsubjects.org/', RDFObject::TalisPlatformProxy.new('lcsh-info'))
   
 end

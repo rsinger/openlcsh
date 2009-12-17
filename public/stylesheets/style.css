@@ -26,19 +26,41 @@ body {
   border: thin black inset;
 }
 
+.searchLeft {
+    width: 20%;
+    float: left;
+}
+
 .search {
+    margin-left: -30px;
+    padding-bottom: 10px;
+}
+
+.searchResults {
   padding: 3%;
+  width: 70%;
   background: #fff;
   border-top: thin black inset;
   border-left: thin black inset;
   -moz-border-radius-topleft: 5px;
   -webkit-border-top-left-radius: 25px;
+  float: left;
+  clear: right;
 }
 
 .login {
   padding: 3%;
   background: #ffffee;
   border: thin black inset;
+}
+
+.paginator {
+    clear:both;
+    text-align:center;
+}
+
+ul.facetList {
+    list-style-type:none;
 }
 
 a {
@@ -54,6 +76,14 @@ a:hover {
     float: right;
     border : thin black inset;
 }
+ul.conceptSchemes li {
+  display: inline;
+}
+
+ul.conceptSchemes li:after {
+	content: "; ";
+	}
+
 
 ul.altLabel li {
   display: inline;

@@ -45,7 +45,7 @@ end
     <% end %>
     </ul>
 <% end %>
-<% if @authority.related %>
+<% if @authority.skos["related"] %>
     <b>Related Terms:</b>
     <ul>
     <% [*@authority.skos["related"]].each do | rel | %>
@@ -72,6 +72,18 @@ end
     <% end %>
     </ul>
 <% end %>
+
+<% if @authority.umbel && @authority.umbel["linksEntity"] %>
+  <div class="realWorldObjects">
+  <b>Resources represented by concept:</b>
+  <ul>
+  <% [*@authority.umbel["linksEntity"]].each do | rwo | %>
+    <li><a property="umbel:linksEntity" href="<%= rwo.uri -%>" rel="<%= rwo.uri -%>"><%= rwo.uri -%></a></li>
+  <% end %>
+  </ul>
+  </div>
+<% end %>
+    
  
     <b>Created:</b>
     <span property="dcterms:created" content="<%= @authority.dcterms["created"] -%>"><%= date_display(@authority.dcterms["created"]) %></span>
@@ -89,9 +101,9 @@ end
     <br />
 <% if @authority.skos["inScheme"] %>
     <b>Concept schemes:</b>
-    <ul>
+    <ul class="conceptSchemes">
     <% [*@authority.skos["inScheme"]].each do | scheme | %>
-      <li><%= scheme.uri %></li>
+      <li property="skos:inScheme" rel="<%= scheme.uri -%>" title="<%= scheme.uri -%>"><%= scheme_labels(scheme) %></li>
     <% end %>
     </ul>
 <% end %>
@@ -112,22 +124,60 @@ end
       </ul>
     <% end 
   end
-  if @authority.owl['sameAs'] %>
-      <b>Same as:</b>
-      <ul>
-      <% [*@authority.owl['sameAs']].each do | same_as | %>
-        <li><a href="<%= same_as.uri %>" rel="owl:sameAs" resource="<%= same_as.uri -%>"><%= same_as.uri %></a></li>
-      <% end %>
-      </ul>
-    <% end %>
-    <% if @authority.skos['exactMatch'] %>
-      <b>Identical concepts from other vocabularies:</b>
-      <ul>
-      <% [*@authority.skos['exactMatch']].each do | exact_match | %>
-        <li><a href="<%= exact_match.uri %>" rel="skos:exactMatch" resource="<%= exact_match.uri -%>"><%= exact_match.uri %></a></li>
-      <% end %>
-      </ul>
+  if @authority.skos['exactMatch'] 
+      internal = []
+      external = []
+      [*@authority.skos['exactMatch']].each do | exact_match |
+        if exact_match.uri =~ /^http:\/\/lcsubjects\.org\//
+          internal << exact_match
+        else
+          external << exact_match
+        end
+      end
+      unless external.empty? %>
+        <b>Identical concepts from other vocabularies:</b>
+        <ul>
+        <% external.each do | exact_match | %>
+          <li><a href="<%= exact_match.uri %>" rel="skos:exactMatch" resource="<%= exact_match.uri -%>"><%= exact_match.uri %></a></li>
+        <% end %>
+        </ul>
+      <% end
+      unless internal.empty? %>
+        <b>Identical concepts in LCSH in different schemes:</b>
+        <% internal.each do | exact_match | 
+          exact_match.describe %>
+          <%= exact_match['http://LCSubjects.org/type'] -%>
+        <% end 
+      end %>
     <% end %>    
+    <% if @authority.skos['relatedMatch'] 
+      internal = []
+      external = []
+      [*@authority.skos['relatedMatch']].each do | rel_match |
+        if rel_match.uri =~ /^http:\/\/lcsubjects\.org\//
+          internal << rel_match
+        else
+          external << rel_match
+        end
+      end
+      unless internal.empty? %>
+        <p>
+        <b>This heading also appears as:</b>
+        <% internal.each do | rel_match | 
+          rel_match.describe %>
+          <a href="<%= rel_match.uri -%>" rel="skos:relatedMatch" resource="<%= rel_match.uri -%>"><%= rel_match['http://LCSubjects.org/vocab/1#type'] -%></a>
+        <% end %>
+        </p>
+        <% end
+      unless external.empty? %>
+        <b>Related concepts from other vocabularies:</b>
+        <ul>
+        <% external.each do | rel_match | %>
+          <li><a href="<%= rel_match.uri %>" rel="skos:relatedMatch" resource="<%= rel_match.uri -%>"><%= rel_match.uri %></a></li>
+        <% end %>
+        </ul>
+      <% end
+    end %>   
     <% if @authority.skos['closeMatch'] %>
       <b>Similar concepts from other vocabularies:</b>
       <ul>
@@ -136,7 +186,14 @@ end
       <% end %>
       </ul>
     <% end %>
-
+    <% if @authority.owl['sameAs'] %>
+      <b>Same as:</b>
+      <ul>
+      <% [*@authority.owl['sameAs']].each do | same_as | %>
+        <li><a href="<%= same_as.uri %>" rel="owl:sameAs" resource="<%= same_as.uri -%>"><%= same_as.uri %></a></li>
+      <% end %>
+      </ul>
+    <% end %>
 
 </div>
 

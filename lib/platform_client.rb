@@ -53,6 +53,20 @@ class PlatformClient
     return [collection[uri.to_s], collection]
   end
   
+  def facet(query, facets, params={})
+    params[:output] = "xml" unless params[:output]
+    response = @store.facet(query, facets, params)
+    facets = {}
+    doc = REXML::Document.new(response.body.content)
+    doc.each_element('facet-results/fields/field') do | field |
+      facets[field.attributes['name']] = []
+      field.each_element('term') do | term |
+        facets[field.attributes['name']] << {:term=>term.attributes["value"], :number => term.attributes["number"], :uri=>term.attributes["search-uri"]}
+      end
+    end
+    facets
+  end
+  
   def augment(data)
     u = @store.build_uri("/services/augment")
     puts "Sending to augment service:  " + Time.now.to_s

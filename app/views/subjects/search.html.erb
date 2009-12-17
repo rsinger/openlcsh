@@ -1,15 +1,36 @@
 <h1 style="text-align: center">Library of Congress Subject Headings</h1>
 
+<div class="searchLeft">
 <div class="search">
     <form action="/search" method="get">
         <div style="text-align: center">
-            <input type="text" name="q" value="<%= params['q'] %>" />
+            <input type="text" name="q" value="<%= CGI.escapeHTML(params['q']) %>" />
             <input type="submit" value="Search" />
 
         </div>
-        
-        
+</div>     
+  <% if @facets && !@facets.empty? %>
+    <div class="facetResults">
+    <% labels = {"collection"=>"Collection", "subjectType"=>"Heading Type", "subdivision"=>"Subdivision"}
+    ["collection","subjectType","subdivision"].each do | facet |
+    if @facets[facet] && !@facets[facet].empty? %>
+      <b><%= labels[facet] -%></b>
+      <ul class="facetList">
+      <% @facets[facet].each do | term | %>
+        <% unless params[:q].match(/#{facet}:"#{term[:term]}"/) %>
+          <li><a href="<%= generate_facet_link(term[:uri]) -%>"><%= term[:term] -%></a></li>
+        <% else %>
+          <li><%= term[:term] -%></li>
+        <% end %>
+      <% end %>
+      </ul>
+    <% end  end %>
+
+    </div>
+  <% end %>
+</div>
         <% if @results %>
+          <div class="searchResults">
           <div><%= @results["http://a9.com/-/spec/opensearch/1.1/totalResults"] %> matches to your search</div>
           <ol start="<%= (@results["http://a9.com/-/spec/opensearch/1.1/startIndex"].to_i + 1) %>">
           <%
@@ -23,6 +44,7 @@
         <% end
         end %>
         </ol>
+        </div>
           <% if pages = paginate(@results) %>
             <div class='paginator'>
             <% if @results["http://a9.com/-/spec/opensearch/1.1/startIndex"].to_i > 0 %>
@@ -45,6 +67,7 @@
             </div>
           <% end %>        
         <% end %>
+        
     </form>
 </div>
 

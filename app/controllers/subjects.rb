@@ -73,17 +73,19 @@ class Subjects < Application
   def search
     @results = nil
     @title = 'Search LCSubjects.org'
-    if params['q']
-      opts = {}
-      opts['max'] = params['max']||25
-      opts['offset'] = params['offset']||0
-      if params['sort']
-        opts['sort'] = params['sort']
-      end
-      @store = PlatformClient.create
-      @results, @collection = @store.search(params['q'], opts)
-      @title << ": #{params['q']}"
+    if params['q'].nil? or params['q'].strip.empty?
+      params['q'] = "*:*"
     end
+    opts = {}
+    opts['max'] = params['max']||25
+    opts['offset'] = params['offset']||0
+    if params['sort']
+      opts['sort'] = params['sort']
+    end
+    @store = PlatformClient.create
+    @results, @collection = @store.search(params['q'], opts)
+    @title << ": #{params['q']}"
+    @facets = @store.facet(params['q'],["collection","subjectType","subdivision"])
     display @results   
   end
   
