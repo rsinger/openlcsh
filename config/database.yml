@@ -23,7 +23,7 @@ test:
  
 production:
   <<:       *defaults
-  database: production.db
+  database: /home/rsinger/rails-sites/lcsh/shared/db/production.db
  
   # repositories:
   #   repo1:
