@@ -94,6 +94,24 @@ class PlatformClient
     collection
   end
   
+  def find_by_skos_label(label)
+
+    query = "preflabel:\"#{label}\" || altlabel:\"#{label}\" || hiddenlabel:\"#{label}\" NOT subdivision:\"General\" NOT subdivision:\"Form\" NOT subdivision:\"Chronological\" NOT subdivision:\"Geographic\""
+    response = @store.search(query, :max=>100)
+
+    doc = Nokogiri.XML(response.body.content)
+    resources = []
+    ['pref','alt','hidden'].each do | label_type |
+      doc.xpath("/rdf:RDF/rss:item[skos:#{label_type}Label='#{label}']", {"rdf"=>"http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rss"=>"http://purl.org/rss/1.0/", "skos"=>"http://www.w3.org/2004/02/skos/core#"}).each do | l |
+        resources << l['about']
+      end
+      break unless resources.empty?
+    end
+
+    resources
+  end
+    
+  
 end
 
     

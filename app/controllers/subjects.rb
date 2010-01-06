@@ -6,9 +6,10 @@ class Subjects < Application
   def index
     @store = PlatformClient.create
     opts = {:max=>50,'offset'=>(params['offset']||0),:sort=>'preflabel'}
-    @results = @store.search('*:*', opts)
+    @results, @collection = @store.search('*:*', opts)
+    params['q'] = "*:*"
     @title = 'All LCSH'
-    display @results
+    display @results, {:layout=>"search", :template=>"subjects/search"}
   end
 
   def show(id)
@@ -23,6 +24,17 @@ class Subjects < Application
     display @authority
   end
 
+  def label
+    @store = PlatformClient.create    
+    label = CGI.unescape(params[:label])
+    @uris = @store.find_by_skos_label(label)
+    raise NotFound if @uris.empty?
+    if @uris.length == 1
+      redirect @uris[0]
+    end
+    @title = label
+    display @uris, {:status=>300, :layout=>"search"}
+  end
 #  def new
 #    only_provides :html
 #    @authority = Authority.new
@@ -86,7 +98,7 @@ class Subjects < Application
     @results, @collection = @store.search(params['q'], opts)
     @title << ": #{params['q']}"
     @facets = @store.facet(params['q'],["collection","subjectType","subdivision"])
-    display @results   
+    display @results, {:layout=>"search"}   
   end
   
   private
