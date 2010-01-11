@@ -50,4 +50,5 @@ Merb::Router.prepare do
   match('/subjects').to(:controller => 'subjects', :action=>'index').name('default')
   match('/search').to(:controller => 'subjects', :action=>'search').name('search')
   match('/subjects/label/:label').to(:controller => 'subjects', :action=>'label').name("label")
+  match('/subjects/edit/:id').to(:controller => 'subjects', :action=>'edit').name("edit_subject")  
 end

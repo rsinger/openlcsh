@@ -50,7 +50,10 @@ class PlatformClient
     uri.query = q.join("&")
     collection = RDFObject::Collection.new
     collection.parse(response.body.content)
-    return [collection[uri.to_s], collection]
+    search_uri = nil
+    collection.uris.each {|r| search_uri = r if r =~ /http:\/\/api\.talis\.com\/stores\/lcsh-info\/items\?/} 
+    
+    return [collection[search_uri], collection]
   end
   
   def facet(query, facets, params={})

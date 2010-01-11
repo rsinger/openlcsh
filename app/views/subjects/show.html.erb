@@ -4,6 +4,9 @@
     <li><a href="<%= params[:id].sub(/\#concept/,"") %>.<%= type %>"><%= type %></a></li>
     <% end %>
   </ul>
+  <% if session.user %>
+  <a href="<%= "/subjects/edit/#{params[:id]}" -%>">edit</a>
+  <% end %>
 <h1 property="skos:prefLabel"><%= @authority.skos["prefLabel"] %></h1>
 <% if @authority.wgs84 and @authority.wgs84["lat"] && @authority.wgs84["long"] %>
   <div id="map"></div>

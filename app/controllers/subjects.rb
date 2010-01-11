@@ -9,7 +9,7 @@ class Subjects < Application
     @results, @collection = @store.search('*:*', opts)
     params['q'] = "*:*"
     @title = 'All LCSH'
-    display @results, {:layout=>"search", :template=>"subjects/search"}
+    display @results, nil, {:layout=>"search", :template=>"subjects/search"}
   end
 
   def show(id)
@@ -33,7 +33,7 @@ class Subjects < Application
       redirect @uris[0]
     end
     @title = label
-    display @uris, {:status=>300, :layout=>"search"}
+    display @uris, nil, {:status=>300, :layout=>"search"}
   end
 #  def new
 #    only_provides :html
@@ -41,12 +41,17 @@ class Subjects < Application
 #    display @authority
 #  end
 
-#  def edit(id)
-#    only_provides :html
-#    @authority = Authority.get(id)
-#    raise NotFound unless @authority
-#    display @authority
-#  end
+  def edit(id)
+    only_provides :html
+    @store = PlatformClient.create
+    unless id =~ /#concept$/
+      id << "#concept"
+    end
+    @authority, @collection = @store.describe_by_id(id, set_mime_type(content_type))
+    raise NotFound unless @authority
+    @title = @authority.skos['prefLabel']
+    display @authority, nil, :layout=>"search"
+  end
 
 #  def create(authority)
 #    @authority = Authority.new(authority)
@@ -95,10 +100,10 @@ class Subjects < Application
       opts['sort'] = params['sort']
     end
     @store = PlatformClient.create
-    @results, @collection = @store.search(params['q'], opts)
+    (@results, @collection) = @store.search(params['q'], opts)
     @title << ": #{params['q']}"
     @facets = @store.facet(params['q'],["collection","subjectType","subdivision"])
-    display @results, {:layout=>"search"}   
+    display @results, nil, {:layout=>"search"}   
   end
   
   private

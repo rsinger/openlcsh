@@ -1,4 +1,37 @@
-<h1>Authorities controller, edit action</h1>
+<h1>Edit <%= @authority.pref_label -%></h1>
+<% if @authority.skos["altLabel"] %>
+<em>a.k.a. <%= @authority.alt_labels.join(", ") -%></em>
+<% end %>
+<% similar_resources = @authority.find_similar_resources 
 
-<p>Edit this file in <tt>app/views/authorities/edit.html.erb</tt></p>
-<p>For more information and examples of CRUD views read <a href="http://wiki.merbivore.com/howto/crud_view_example_with_merb_using_erb"> this wiki page</a>
+similar_resources.each do | target, resources|
+%>
+<h3><%= target -%></h3>
+<form method="POST" action="/subjects/update/<%= @authority.lccn -%>">
+
+<% if resources[:resources] && !resources[:resources].empty? -%>
+  <strong>Is a conceptual representation of:  (check all that apply)</strong>
+  <ul>
+  <% resources[:resources].each do | uri, resource | %>
+    <li><input type="checkbox" name="umbel:linksEntity[]" value="<%= uri -%>" /> <a rel="shadowbox" href="<%= uri -%>"><%= uri -%></a></li>
+  <% end %>
+  </ul>
+<% end %>
+
+<% if resources[:concepts] && !resources[:concepts].empty? -%>
+  <strong>Related to:</strong>
+  <ul>
+  <% resources[:concepts].each do | uri, resource | %>
+    <li>
+    <select name="related_concepts">
+      <option value="" SELECTED>No relation</option>
+      <option value="skos:closeMatch[<%= uri -%>]">Close match</option>
+      <option value="skos:relatedMatch[<%= uri -%>]">Related match</option>
+    </select>
+    <a rel="shadowbox" href="<%= uri -%>"><%= uri -%></a></li>
+  <% end %>
+  </ul>
+<% end %>
+<% end %>
+<input type="submit" value="Save" /> <a href="<%= @authority.uri -%>">Cancel</a>
+</form>
