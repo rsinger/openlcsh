@@ -16,6 +16,7 @@ module Subject
     dbpedia_lookup(resource_uri+CGI.escape(term), resources)
     dbpedia_lookup(concept_uri+CGI.escape(term), concepts )
     self.alt_labels.each do | alt |
+      next unless alt
       alt_term = alt.gsub(/\s/,"_").capitalize
       dbpedia_lookup(resource_uri+CGI.escape(alt_term), resources)
       dbpedia_lookup(concept_uri+CGI.escape(alt_term), concepts )            
