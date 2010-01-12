@@ -1,8 +1,13 @@
 module Subject
-
+  def to_rdfxml
+    self.to_xml
+  end
+  
   def find_similar_resources
     similar={"dbpedia.org"=>find_dbpedia_resources}
-    
+    if is_geographic?
+      similar["geonames"] = find_geonames_resources
+    end
     similar
   end
   
@@ -65,5 +70,12 @@ module Subject
   
   def lccn
     self.uri.split("/").last.sub(/#.*$/, "")
+  end
+  
+  def is_geographic?
+    [*self.skos['inScheme']].each do | scheme |
+      return true if scheme.uri == "http://lcsubjects.org/schemes/geographicNames"
+    end
+    return false
   end
 end
