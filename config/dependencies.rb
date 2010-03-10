@@ -1,5 +1,5 @@
 # dependencies are generated using a strict version, don't forget to edit the dependency versions when upgrading.
-merb_gems_version = "1.0.12"
+merb_gems_version = "1.0.15"
 dm_gems_version   = "0.10.1"
 do_gems_version   = "0.10.0"
 
@@ -36,3 +36,4 @@ dependency "pho", ">=0.4"
 dependency "nokogiri", "1.3.3"
 dependency 'ruby-openid', :require_as => 'openid'
 dependency 'rdfobjects', ">= 0.3.1",:require_as => 'rdf_objects'
+dependency 'geonames'

@@ -6,7 +6,7 @@ require 'rubygems'
 #Gem.clear_paths
 #$BUNDLE = true
 #Gem.path.unshift(gems_dir)
- 
+
 require 'merb-core'
  
 Merb::Config.setup(:merb_root   => File.expand_path(File.dirname(__FILE__)),

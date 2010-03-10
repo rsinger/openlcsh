@@ -8,6 +8,7 @@ module Subject
     if is_geographic?
       similar["geonames"] = find_geonames_resources
     end
+    similar["Other sources"] = find_similar_from_similar
     similar
   end
   
@@ -72,9 +73,42 @@ module Subject
     self.uri.split("/").last.sub(/#.*$/, "")
   end
   
+  def find_geonames_resources
+    crit = Geonames::ToponymSearchCriteria.new
+    crit.q = self.pref_label
+    resources = RDFObject::Collection.new
+    results = Geonames::WebService.search(crit)
+    results.toponyms.each do | geoname |
+      resources.find_or_create("http://sws.geonames.org/#{geoname.geoname_id}/")
+    end
+    self.alt_labels.each do | alt |
+      next unless alt
+      crit.q = alt
+      results = Geonames::WebService.search(crit)
+      results.toponyms.each do | geoname |
+        resources.find_or_create("http://sws.geonames.org/#{geoname.geoname_id}/")
+      end
+    end
+    {:resources=>resources}      
+  end
+  
+  def find_similar_from_similar
+    resources = RDFObject::Collection.new
+    [*self.umbel["linksEntity"]].each do | rwo |
+      next unless rwo
+      puts rwo.inspect
+      rwo = rwo.resource
+      rwo.describe
+      [*rwo.owl['sameAs']].each do | same |
+        next unless same
+        resources.find_or_create(same.uri)
+      end
+    end
+  end
+  
   def is_geographic?
     [*self.skos['inScheme']].each do | scheme |
-      return true if scheme.uri == "http://lcsubjects.org/schemes/geographicNames"
+      return true if scheme.uri == "http://lcsubjects.org/schemes/geographicNames" or scheme.uri == "http://lcsubjects.org/schemes/corporateNames"
     end
     return false
   end
