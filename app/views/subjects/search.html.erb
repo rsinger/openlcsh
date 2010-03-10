@@ -34,9 +34,12 @@
           <div class="searchResults">
           <div><%= @results["http://a9.com/-/spec/opensearch/1.1/totalResults"] %> matches to your search</div>
           <ol start="<%= (@results["http://a9.com/-/spec/opensearch/1.1/startIndex"].to_i + 1) %>">
+
           <%
-          if @results["http://purl.org/rss/1.0/items"] && @results["http://purl.org/rss/1.0/items"].rdf && @results["http://purl.org/rss/1.0/items"].rdf["li"]
-            [*@results["http://purl.org/rss/1.0/items"].rdf["li"]].each do | result | %>
+          if @results["http://purl.org/rss/1.0/items"] && @results["http://purl.org/rss/1.0/items"].rdf && @results["http://purl.org/rss/1.0/items"]["http://purl.org/rss/1.0/resource"]
+
+            [*@results["http://purl.org/rss/1.0/items"]["http://purl.org/rss/1.0/resource"]].each do | resource | 
+              result = @collection[resource]%>
             <li><a typeof="skos:Concept" href="<%= result.uri %>"><%= result.skos["prefLabel"] %></a>
             <% if result.skos["altLabel"] %>
               <br />Use for <em><%= [*result.skos["altLabel"]].join("</em>; <em>") %></em>
