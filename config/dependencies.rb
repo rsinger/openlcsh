@@ -33,7 +33,7 @@ dependency "dm-serializer", dm_gems_version
 dependency "merb_datamapper", merb_gems_version
 
 dependency "pho", ">=0.4"
-dependency "nokogiri", "1.3.3"
+dependency "nokogiri", ">=1.4.0"
 dependency 'ruby-openid', :require_as => 'openid'
 dependency 'rdfobjects', ">= 0.3.1",:require_as => 'rdf_objects'
 dependency 'geonames'
