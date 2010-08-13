@@ -1,0 +1,50 @@
+%h1{:style=>"text-align: center"} Library of Congress Subject Headings
+.searchLeft
+  .search
+    %form{:action=>"/search/", :method=>"get"}
+      %div{:style=>"text-align: center"}
+        %input{:type=>"text", :name=>"q", :value=>params['q']}
+        %input{:type=>"submit", :value=>"Search"}
+  - unless @results.facets.empty?
+    .facetResults
+      - labels = {"collection"=>"Collection", "subjectType"=>"Heading Type", "subdivision"=>"Subdivision"}
+      - ["collection","subjectType","subdivision"].each do |facet|
+        - if @results.facets[facet] && !@results.facets[facet].empty?
+          %b #{labels[facet]}
+          %ul.facetList
+            - @results.facets[facet].each do |term|
+              - if params["q"] && params["q"].match(/#{facet}:"#{term[:term]}"/)
+                %li #{term[:term]}
+              - else
+                %li
+                  %a{:href=>set_facet_search(term)} #{term[:term]}
+  
+- if @results
+  .searchResults
+    .hitCount #{@results.total_hits} matches to your search
+    %ol{:start=>(@results.offset + 1)}
+      - @results.hits.each do |result|
+        %li
+          %a{:typeof=>"skos:Concept", :href=>url_from_uri(result.uri), :rel=>result.uri} #{result.skos['prefLabel']}
+          - if result.skos['altLabel']
+            %br
+            Use for
+            %em #{[*result.skos["altLabel"]].join("</em>; <em>")}
+
+  - if pages = paginate(@results)
+    .paginator
+      - if @results.offset > 0
+        %a{:href=>uri_for("/search/", {'q'=>params['q'],'offset'=>(@results.offset-@results.results_per_page),'sort'=>params['sort']})} <<
+      - pages.each do |page|
+        - if page.is_a?(Range)
+          - page.each do |p|
+            %a{:href=>uri_for("/search/", {'q'=>params['q'],'offset'=>(p*@results.results_per_page),'sort'=>params['sort']})} #{p+1}
+        - elsif page.is_a?(String)
+          #{"..."}
+        - elsif page.is_a?(Fixnum)
+          %a{:href=>uri_for("/search/", {'q'=>params['q'],'offset'=>(p*@results.results_per_page),'sort'=>params['sort']})} #{p+1}
+      - if @results.offset < (@results.offset - @results.results_per_page)
+        %a{:href=>uri_for("/search/", {'q'=>params['q'],'offset'=>(@results.offset+@results.results_per_page),'sort'=>params['sort']})} >>
+
+
+

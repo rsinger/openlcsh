@@ -1,0 +1,61 @@
+!!!
+%html{:xmlns=>"http://www.w3.org/1999/xhtml", :"xml:lang"=>"en-us"}
+  %head
+    %title LCSH as Linked Data
+    %meta{:"http-equiv"=>"content-type", :content=>"text/html; charset=utf-8"}
+    %link{:rel=>"stylesheet", :href=>"/stylesheets/style.css", :type=>"text/css", :media=>"screen", :charset=>"utf-8"}
+  %body    
+    %h1{:style=>"text-align: center"} Library of Congress Subject Headings
+    %ul.navMenu
+      %li
+        %a{:href=>"/search/"} Search
+      %li
+        %a{:href=>"http://api.talis.com/stores/lcsh-info/services/sparql"} SPARQL    
+    .concept
+      %p
+        This is an experimental service that makes the
+        %a{:href=>"http://en.wikipedia.org/wiki/Library_of_Congress_Subject_Headings"} Library of Congress Subject Headings
+        %a{:href=>"http://en.wikipedia.org/wiki/Linked_Data"} linked data
+      %p
+        LCSubjects.org takes the data made available from the 
+        %a{:href=>"http://id.loc.gov/authorities"}Library of Congress' Authorities    
+        and is intended as a sandbox to provide relationships to other thesaurii and web resources.  More information about the Linked Data 
+        effort can be found on the 
+        %a{:href=>"http://esw.w3.org/topic/SweoIG/TaskForces/CommunityProjects/LinkingOpenData"} W3C Wiki  
+    
+      %table{:width=>"90%", :style=>"text-align: center;"}
+        %tr
+          %th Concept
+          %th Concept URI
+        %tr
+          %td
+            %a{:href=>"http://lcsubjects.org/subjects/sh85118553#concept"} Science
+          %td http://lcsubjects.org/subjects/sh85118553#concept
+        %tr
+          %td
+            %a{:href=>"http://lcsubjects.org/subjects/sh85062913#concept"} Humanities
+          %td http://lcsubjects.org/subjects/sh85062913#concept
+        %tr
+          %td
+            %a{:href=>"http://lcsubjects.org/subjects/sh85082139#concept"} Mathematics
+          %td http://lcsubjects.org/subjects/sh85082139#concept
+        %tr
+          %td
+            %a{:href=>"http://lcsubjects.org/subjects/sh85020816#concept"} Cataloging
+          %td http://lcsubjects.org/subjects/sh85020816#concept
+        %tr
+          %td
+            %a{:href=>"http://lcsubjects.org/subjects/sh95000541#concept"} World Wide Web
+          %td http://lcsubjects.org/subjects/sh95000541#concept
+
+      %p
+        The code for this project is available at 
+        %a{:href=>"http://github.com/rsinger/openlcsh/tree/master"} github.    
+      %p
+        The data store, search results, and SPARQL endpoints are provided by the 
+        %a{:href=>"http://n2.talis.com/"} Talis Platform.
+      %p
+        The inspiration, as well as the seed data, for this project was entirely from 
+        %a{:href=>"http://lcsh.info/"} http://lcsh.info/
+        (RIP)
+    
