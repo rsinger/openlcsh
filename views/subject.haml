@@ -1,6 +1,6 @@
 .concept{:about=>@subject.uri, :typeof=>"skos:Concept"}
   %ul.alternativeFormats
-    - ['rdf','txt','json'].each do |type|
+    - ['rdf','nt','json'].each do |type|
       %li
         %a{:href=>"/subjects/#{params["id"].sub(/\#concept/,"")}.#{type}"} #{type}
   
@@ -26,21 +26,21 @@
     %ul
       -[*@subject.skos["broader"]].each do |broader| 
         %li
-          %a{:href=>broader.uri, :rel=>"skos:broader"} #{@collection[broader.uri].skos['prefLabel']}
+          %a{:href=>broader.uri, :rel=>"skos:broader"} #{@collection[broader.uri]['http://www.w3.org/2004/02/skos/core#prefLabel']||broader.uri}
           
   - if @subject.skos['narrower']
     %b Narrower Terms:
     %ul
       -[*@subject.skos["narrower"]].each do |narrower| 
         %li
-          %a{:href=>narrower.uri, :rel=>"skos:narrower"} #{@collection[narrower.uri].skos['prefLabel']}
+          %a{:href=>narrower.uri, :rel=>"skos:narrower"} #{@collection[narrower.uri]['http://www.w3.org/2004/02/skos/core#prefLabel']||narrower.uri}
 
   - if @subject.skos['related']
     %b Related Terms:
     %ul
       -[*@subject.skos["related"]].each do |related| 
         %li
-          %a{:href=>related.uri, :rel=>"skos:related"} #{@collection[related.uri].skos['prefLabel']}
+          %a{:href=>related.uri, :rel=>"skos:related"} #{@collection[related.uri]['http://www.w3.org/2004/02/skos/core#prefLabel']||narrower.uri}
 
   - if @subject.skos["editorialNote"]
     %b Editorial Notes:
@@ -55,13 +55,13 @@
       - [*@subject.dcterms["source"]].each do |source|
         %li{:property=>"dcterms:source"} #{source}
 
-  - if @subject.umbel && @subject.umbel["linksEntity"]
+  - if @subject.foaf && @subject.foaf['focus']
     .realWorldObjects
       %b Resources represented by concept:
       %ul
-        - [*@subject.umbel["linksEntity"]].each do |rwo|
+        - [*@subject.foaf['focus']].each do |rwo|
           %li
-            %a{:property=>"umbel:linksEntity", :href=>rwo.uri, :rel=>rwo.uri} #{rwo.uri}
+            %a{:property=>"foaf:focus", :href=>rwo.uri, :rel=>rwo.uri} #{rwo.uri}
 
   %b Created:
   %span{:property=>"dcterms:created", :content=>@subject.dcterms['created']} #{date_display(@subject.dcterms["created"])}
@@ -94,6 +94,14 @@
         - [*@subject.wgs84['location']].each do |location|
           %li
             %a{:href=>location.uri, :rel=>"wgs84:location", :resource=>location.uri} #{location}
+
+  - if @subject.lcsh
+    - if @subject.lcsh['coordinates']
+      %b This concept is the coordination of:
+      %ol{:rel=>"lcsh:coordinates", :resource=>@subject.lcsh['coordinates'].first.uri}
+        - [*@subject.lcsh['coordinates'].first['http://www.w3.org/1999/02/22-rdf-syntax-ns#li']].each do |coord|
+          %li
+            %a{:href=>coord.uri, :rel=>"rdf:li", :resource=>coord.uri} #{coord['http://www.w3.org/2004/02/skos/core#prefLabel']||coord.uri}
   - if @subject.skos['exactMatch']
     - if @subject.skos['exactMatch'] 
       - exact = divide_matches(@subject.skos['exactMatch'])

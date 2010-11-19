@@ -11,11 +11,12 @@ configure do
    :umbel=>'http://umbel.org/umbel#', :rss=>'http://purl.org/rss/1.0/'  
 end
 use(Rack::Conneg) { |conneg|
+  Rack::Mime::MIME_TYPES['.nt'] = 'text/plain'     
   conneg.set :accept_all_extensions, false
   conneg.set :fallback, :html
   conneg.ignore('/public/')
   conneg.ignore('/stylesheets/')
-  conneg.provide([:rdf, :txt, :html, :json])
+  conneg.provide([:rdf, :nt, :html, :json])
 }
 
 before do
@@ -32,16 +33,19 @@ get '/subjects/:id' do
   unless params['id'] =~ /#concept$/
     params['id'] << "#concept"
   end  
-  response = Store.describe("http://lcsubjects.org/subjects/#{params['id']}")
-  @subject = response.resource
-  @collection = response.collection
-  rel_response = get_related_labels(@subject.uri)
-  replace_uris_in_collection(@collection, rel_response.collection)
+  #response = Store.describe("http://lcsubjects.org/subjects/#{params['id']}")
+  #@subject = response.resource
+  #@collection = response.collection
+  response = describe_graph_objects("http://lcsubjects.org/subjects/#{params['id']}")
+  @subject = response.collection["http://lcsubjects.org/subjects/#{params['id']}"]
+  @collection = response.collection  
+  halt 404, "Not found" unless @subject
+  #replace_uris_in_collection(@collection, rel_response.collection)
   @title = @subject.skos['prefLabel']
   respond_to do | wants |
-    wants.rdf { @subject.to_xml() }
+    wants.rdf { @collection.to_xml() }
     wants.html { haml :subject, :layout=>:subject_layout }
-    wants.txt {@subject.to_ntriples() }
+    wants.nt {@subject.to_ntriples() }
     wants.json {@subject.to_json() }
   end  
 end
@@ -49,6 +53,7 @@ end
 get '/search/' do
   @title = 'Search LCSubjects.org'
   query = params['q']||"*:*"
+  query << " +resourcetype:\"Authorized Heading\""
   opts = {}
   opts['max'] = params['max']||25
   opts['offset'] = params['offset']||0
@@ -58,13 +63,19 @@ get '/search/' do
 
   response = Store.search(query, opts)
   @results = SearchResult.new_from_search_result(response.resource)
-  @title << ": #{query}"
+  @title << ": #{params['q']}"
   facet_response = Store.facet(query,["collection","subjectType","subdivision"], {:top=>25, :output=>"xml"}) 
   @results.parse_facet_response(facet_response.body.content)
   haml :search, :layout=>:search_layout
 end
 
 helpers do
+  def describe_graph_objects(uri)
+    sparql = "DESCRIBE <#{uri}> ?o WHERE { <#{uri}> ?p ?o .}"
+    response = Store.sparql_describe(sparql)
+    return response
+  end
+  
   def get_related_labels(uri)
     sparql = "PREFIX skos: <http://www.w3.org/2004/02/skos/core#>\n"
     sparql << "CONSTRUCT {?o skos:prefLabel ?label .\n"
