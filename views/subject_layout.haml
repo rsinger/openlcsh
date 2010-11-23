@@ -2,7 +2,7 @@
 = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML+RDFa 1.0//EN\" \"http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd\">"
 %html{:xmlns=>"http://www.w3.org/1999/xhtml", :"xmlns:rdf"=>"http://www.w3.org/1999/02/22-rdf-syntax-ns#",
   :"xmlns:skos"=>"http://www.w3.org/2004/02/skos/core#", :"xmlns:wgs84"=>"http://www.w3.org/2003/01/geo/wgs84_pos#",
-  :"xmlns:umbel"=>"http://umbel.org/umbel#", :"xmlns:dcterms"=>"http://purl.org/dc/terms/", :"xml:lang"=>"en-us"}
+  :"xmlns:lcsh"=>"http://LCSubjects.org/vocab/1#", :"xmlns:dcterms"=>"http://purl.org/dc/terms/", :"xml:lang"=>"en-us"}
   %head{:profile=>"http://www.w3.org/2003/g/data-view"}
     %link{:rel=>"transformation", :href=>"http://ns.inria.fr/grddl/rdfa/2008/03/28/RDFa2RDFXML.xsl"}
     %link{:rel=>"alternate", :type=>"application/rdf+xml", :href=>@subject.uri.sub(/\#concept/,".rdf")}
@@ -68,12 +68,18 @@
           }
   
   %body{:onLoad=>"init();"}
-    %ul.navMenu
-      %li
-        %a{:href=>"/"} Home
-      %li
-        %a{:href=>"/search/"} Search
-      %li
-        %a{:href=>"http://api.talis.com/stores/lcsh-info/services/sparql"} SPARQL
+    #navMenuContainer
+      %ul.navMenu
+        %li
+          %a{:href=>"/"} Home
+        %li
+          %a{:href=>"/search/"} Search
+        %li
+          %a{:href=>"http://api.talis.com/stores/lcsh-info/services/sparql"} SPARQL
+    #altFormatContainer
+      %ul.alternativeFormats
+        - ['rdf','nt','json'].each do |type|
+          %li
+            %a{:href=>"/subjects/#{params["id"].sub(/\#concept/,"")}.#{type}"} #{type}        
 
     = yield

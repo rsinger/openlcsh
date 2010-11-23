@@ -1,156 +1,159 @@
 .concept{:about=>@subject.uri, :typeof=>"skos:Concept"}
-  %ul.alternativeFormats
-    - ['rdf','nt','json'].each do |type|
-      %li
-        %a{:href=>"/subjects/#{params["id"].sub(/\#concept/,"")}.#{type}"} #{type}
-  
-  %h1{:property=>"skos:prefLabel"} #{@subject.skos['prefLabel']}
+  .leftColumn
+    - if @subject.skos["inScheme"]
+      %b Concept schemes:
+      %ul.facetList
+        - [*@subject.skos["inScheme"]].each do |scheme|
+          %li{:rel=>"skos:inScheme", :resource=>scheme.uri, :title=>scheme.uri} #{scheme_label(scheme) || scheme.uri}    
+  .mainColumn  
+    %h1 
+      %a{:href=>@subject.uri, :property=>"skos:prefLabel"} #{@subject.skos['prefLabel']}
 
-  - if @subject.wgs84 and @subject.wgs84["lat"] && @subject.wgs84["long"]
-    #map
+    - if @subject.wgs84 and @subject.wgs84["lat"] && @subject.wgs84["long"]
+      #map
 
-  - if @subject.skos["scopeNote"]
-    - [*@subject.skos["scopeNote"]].each do |note|
-      %p{:property=>"skos:scopeNote"} #{note}
+    - if @subject.skos["scopeNote"]
+      - [*@subject.skos["scopeNote"]].each do |note|
+        %p{:property=>"skos:scopeNote"} #{note}
 
-  - if @subject.skos["altLabel"]
-    %b Use For:
-    %ul.altLabel
-      - [*@subject.skos["altLabel"]].each do |uf|
-        - unless uf == [*@subject.skos["altLabel"]].last
-          %li{:property=>"skos:altLabel"} #{uf}
-        - else
-          %li.altLabelLast{:property=>"skos:altLabel"} #{uf}
-  - if @subject.skos['broader']
-    %b Broader Terms:
-    %ul
-      -[*@subject.skos["broader"]].each do |broader| 
-        %li
-          %a{:href=>broader.uri, :rel=>"skos:broader"} #{@collection[broader.uri]['http://www.w3.org/2004/02/skos/core#prefLabel']||broader.uri}
-          
-  - if @subject.skos['narrower']
-    %b Narrower Terms:
-    %ul
-      -[*@subject.skos["narrower"]].each do |narrower| 
-        %li
-          %a{:href=>narrower.uri, :rel=>"skos:narrower"} #{@collection[narrower.uri]['http://www.w3.org/2004/02/skos/core#prefLabel']||narrower.uri}
+    - if @subject.skos["altLabel"]
+      %b Use For:
+      %ul.altLabel
+        - [*@subject.skos["altLabel"]].each do |uf|
+          - unless uf == [*@subject.skos["altLabel"]].last
+            %li{:property=>"skos:altLabel"} #{uf}
+          - else
+            %li.altLabelLast{:property=>"skos:altLabel"} #{uf}
 
-  - if @subject.skos['related']
-    %b Related Terms:
-    %ul
-      -[*@subject.skos["related"]].each do |related| 
-        %li
-          %a{:href=>related.uri, :rel=>"skos:related"} #{@collection[related.uri]['http://www.w3.org/2004/02/skos/core#prefLabel']||narrower.uri}
-
-  - if @subject.skos["editorialNote"]
-    %b Editorial Notes:
-    %ul
-      - [*@subject.skos["editorialNote"]].each do |note|
-        %li{:property=>"skos:editorialNote"} #{note}
-
-  - if @subject.dcterms['source']
-    - pl = [*@subject.dcterms["source"]].length > 1 ? "s" : ""
-    %b Source#{pl}
-    %ul
-      - [*@subject.dcterms["source"]].each do |source|
-        %li{:property=>"dcterms:source"} #{source}
-
-  - if @subject.foaf && @subject.foaf['focus']
-    .realWorldObjects
-      %b Resources represented by concept:
+    - if @subject.foaf && @subject.foaf['focus']
+      .realWorldObjects
+        %b Resources represented by concept:
+        %ul
+          - [*@subject.foaf['focus']].each do |rwo|
+            %li
+              %a{:rel=>"foaf:focus", :href=>rwo.uri, :resource=>rwo.uri} #{rwo.uri}
+              
+    - if @subject.skos["editorialNote"]
+      %b Editorial Notes:
       %ul
-        - [*@subject.foaf['focus']].each do |rwo|
-          %li
-            %a{:property=>"foaf:focus", :href=>rwo.uri, :rel=>rwo.uri} #{rwo.uri}
+        - [*@subject.skos["editorialNote"]].each do |note|
+          %li{:property=>"skos:editorialNote"} #{note}
 
-  %b Created:
-  %span{:property=>"dcterms:created", :content=>@subject.dcterms['created']} #{date_display(@subject.dcterms["created"])}
-  %br
-  %br
-  %b Last Modified:
-  %span{:property=>"dcterms:modified", :content=>@subject.dcterms["modified"]} #{date_display(@subject.dcterms["modified"])}
-  %br
-  %br
-  %b Concept URI:
-  %a{:href=>@subject.uri} #{@subject.uri}
-  %br
-  %br
-  - if @subject.skos["inScheme"]
-    %b Concept schemes:
-    %ul.conceptSchemes
-      - [*@subject.skos["inScheme"]].each do |scheme|
-        %li{:property=>"skos:inScheme", :rel=>scheme.uri, :title=>scheme.uri} #{scheme_labels(scheme)}
-
-  - if @subject.wgs84
-    - if @subject.wgs84['lat'] && @subject.wgs84['long']
-      %b Coordinates:
-      %span{:property=>"wgs84:lat"} #{@subject.wgs84['lat']} / 
-      %span{:property=>"wgs84:long"} #{@subject.wgs84['long']}
-      %br
-      %br
-    - if @subject.wgs84['location']
-      %b Locations:
+    - if @subject.dcterms['source']
+      - pl = [*@subject.dcterms["source"]].length > 1 ? "s" : ""
+      %b Source#{pl}
       %ul
-        - [*@subject.wgs84['location']].each do |location|
-          %li
-            %a{:href=>location.uri, :rel=>"wgs84:location", :resource=>location.uri} #{location}
+        - [*@subject.dcterms["source"]].each do |source|
+          %li{:property=>"dcterms:source"} #{source}
 
-  - if @subject.lcsh
-    - if @subject.lcsh['coordinates']
-      %b This concept is the coordination of:
-      %ol{:rel=>"lcsh:coordinates", :resource=>@subject.lcsh['coordinates'].first.uri}
-        - [*@subject.lcsh['coordinates'].first['http://www.w3.org/1999/02/22-rdf-syntax-ns#li']].each do |coord|
-          %li
-            %a{:href=>coord.uri, :rel=>"rdf:li", :resource=>coord.uri} #{coord['http://www.w3.org/2004/02/skos/core#prefLabel']||coord.uri}
-  - if @subject.skos['exactMatch']
-    - if @subject.skos['exactMatch'] 
-      - exact = divide_matches(@subject.skos['exactMatch'])
-      - if exact[:external]
-        %b Identical concepts from other vocabularies:
-        %ul
-          - exact[:external].each do |exact_match|
-            %li
-              %a{:href=>exact_match.uri,:rel=>"skos:exactMatch", :resource=>exact_match.uri} #{exact_match.uri}
-      - if exact[:internal]
-        %b Identical concepts in LCSH in different schemes:
-        - exact[:internal].each do |exact_match|
-          %li
-            %a{:href=>exact_match.uri,:rel=>"skos:exactMatch", :resource=>exact_match.uri} #{@collection[exact_match.uri]['http://LCSubjects.org/vocab/1#type']}
+    %b Created:
+    %span{:property=>"dcterms:created", :content=>@subject.dcterms['created']} #{date_display(@subject.dcterms["created"])}
+    %br
+    %br
+    %b Last Modified:
+    %span{:property=>"dcterms:modified", :content=>@subject.dcterms["modified"]} #{date_display(@subject.dcterms["modified"])}
 
-  - if @subject.skos['relatedMatch']
-    - if @subject.skos['relatedMatch'] 
-      - rel = divide_matches(@subject.skos['relatedMatch'])
-      - if rel[:external]
-        %b Related concepts from other vocabularies:
-        %ul
-          - rel[:external].each do |rel_match|
-            %li
-              %a{:href=>rel_match.uri,:rel=>"skos:relatedMatch", :resource=>rel_match.uri} #{rel_match.uri}
-      - if rel[:internal]
-        %b Related concepts in LCSH in different schemes:
-        - rel[:internal].each do |rel_match|
-          %li
-            %a{:href=>rel_match.uri,:rel=>"skos:relatedMatch", :resource=>rel_match.uri} #{@collection[rel_match.uri]['http://LCSubjects.org/vocab/1#type']}  
+    %br
+    %br
 
-  - if @subject.skos['closeMatch']
-    - if @subject.skos['closeMatch'] 
-      - close = divide_matches(@subject.skos['closeMatch'])
-      - if close[:external]
-        %b Similar concepts from other vocabularies:
+
+    - if @subject.wgs84
+      - if @subject.wgs84['lat'] && @subject.wgs84['long']
+        %b Coordinates:
+        %span{:property=>"wgs84:lat"} #{@subject.wgs84['lat']} / 
+        %span{:property=>"wgs84:long"} #{@subject.wgs84['long']}
+        %br
+        %br
+      - if @subject.wgs84['location']
+        %b Locations:
         %ul
-          - close[:external].each do |close_match|
+          - [*@subject.wgs84['location']].each do |location|
             %li
-              %a{:href=>close_match.uri,:rel=>"skos:closeMatch", :resource=>close_match.uri} #{close_match.uri}
-      - if close[:internal]
-        %b Similar concepts in LCSH in different schemes:
-        - close[:internal].each do |close_match|
-          %li
-            %a{:href=>close_match.uri,:rel=>"skos:closeMatch", :resource=>close_match.uri} #{@collection[close_match.uri]['http://LCSubjects.org/vocab/1#type']}  
+              %a{:href=>location.uri, :rel=>"wgs84:location", :resource=>location.uri} #{location}
+
+    - if @subject.lcsh
+      - if @subject.lcsh['coordinates']
+        .lcshCoordinates{:rel=>"lcsh:coordinates"}
+          %b This concept is the coordination of:
+          %ol{:about=>@subject.uri.sub("#concept", "#coordinates"), :typeof=>"rdf:Seq"}
+            - @collection[@subject.uri.sub("#concept", "#coordinates")].assertions.each do |coord|
+              - next unless coord && coord.first =~ /\#_[0-9]*$/
+              %li
+                %a{:href=>coord.last.uri, :rel=>"#{coord.first.sub("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:")}", :resource=>coord.last.uri} #{coord.last['http://www.w3.org/2004/02/skos/core#prefLabel']||coord.last.uri}
+    - if @subject.skos['exactMatch']
+      - if @subject.skos['exactMatch'] 
+        - exact = divide_matches(@subject.skos['exactMatch'])
+        - if exact[:external]
+          %b Identical concepts from other vocabularies:
+          %ul
+            - exact[:external].each do |exact_match|
+              %li
+                %a{:href=>exact_match.uri,:rel=>"skos:exactMatch", :resource=>exact_match.uri} #{exact_match.uri}
+        - if exact[:internal]
+          %b Identical concepts in LCSH in different schemes:
+          - exact[:internal].each do |exact_match|
+            %li
+              %a{:href=>exact_match.uri,:rel=>"skos:exactMatch", :resource=>exact_match.uri} #{@collection[exact_match.uri]['http://LCSubjects.org/vocab/1#type']}
+
+    - if @subject.skos['relatedMatch']
+      - if @subject.skos['relatedMatch'] 
+        - rel = divide_matches(@subject.skos['relatedMatch'])
+        - if rel[:external]
+          %b Related concepts from other vocabularies:
+          %ul
+            - rel[:external].each do |rel_match|
+              %li
+                %a{:href=>rel_match.uri,:rel=>"skos:relatedMatch", :resource=>rel_match.uri} #{rel_match.uri}
+        - if rel[:internal]
+          %b Related concepts in LCSH in different schemes:
+          - rel[:internal].each do |rel_match|
+            %li
+              %a{:href=>rel_match.uri,:rel=>"skos:relatedMatch", :resource=>rel_match.uri} #{@collection[rel_match.uri]['http://LCSubjects.org/vocab/1#type']}  
+
+    - if @subject.skos['closeMatch']
+      - if @subject.skos['closeMatch'] 
+        - close = divide_matches(@subject.skos['closeMatch'])
+        - if close[:external]
+          %b Similar concepts from other vocabularies:
+          %ul
+            - close[:external].each do |close_match|
+              %li
+                %a{:href=>close_match.uri,:rel=>"skos:closeMatch", :resource=>close_match.uri} #{close_match.uri}
+        - if close[:internal]
+          %b Similar concepts in LCSH in different schemes:
+          - close[:internal].each do |close_match|
+            %li
+              %a{:href=>close_match.uri,:rel=>"skos:closeMatch", :resource=>close_match.uri} #{@collection[close_match.uri]['http://LCSubjects.org/vocab/1#resourcetype']}  
 
   
-  - if @subject.owl['sameAs']
-    %b Same as:
-    %ul
-      - [*@subject.owl['sameAs']].each do |same_as|
-        %li
-          %a{:href=>same_as.uri,:rel=>"owl:sameAs",:resource=>same_as.uri} #{same_as.uri}
+    - if @subject.owl['sameAs']
+      %b Same as:
+      %ul
+        - [*@subject.owl['sameAs']].each do |same_as|
+          - if same_as.uri =~/^info\:/
+            %li{:rel=>"owl:sameAs",:resource=>same_as.uri} #{same_as.uri}
+          - else
+            %li
+              %a{:href=>same_as.uri,:rel=>"owl:sameAs",:resource=>same_as.uri} #{same_as.uri}
+
+  .rightColumn        
+    - if @subject.skos['broader']
+      %b Broader Terms:
+      %ul
+        -[*@subject.skos["broader"]].each do |broader| 
+          %li
+            %a{:href=>broader.uri, :rel=>"skos:broader"} #{@collection[broader.uri]['http://www.w3.org/2004/02/skos/core#prefLabel']||broader.uri}
+
+    - if @subject.skos['narrower']
+      %b Narrower Terms:
+      %ul
+        -[*@subject.skos["narrower"]].each do |narrower| 
+          %li
+            %a{:href=>narrower.uri, :rel=>"skos:narrower"} #{@collection[narrower.uri]['http://www.w3.org/2004/02/skos/core#prefLabel']||narrower.uri}
+
+    - if @subject.skos['related']
+      %b Related Terms:
+      %ul
+        -[*@subject.skos["related"]].each do |related| 
+          %li
+            %a{:href=>related.uri, :rel=>"skos:related"} #{@collection[related.uri]['http://www.w3.org/2004/02/skos/core#prefLabel']||related.uri}          

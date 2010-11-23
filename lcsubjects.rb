@@ -38,7 +38,8 @@ get '/subjects/:id' do
   #@collection = response.collection
   response = describe_graph_objects("http://lcsubjects.org/subjects/#{params['id']}")
   @subject = response.collection["http://lcsubjects.org/subjects/#{params['id']}"]
-  @collection = response.collection  
+  @collection = response.collection
+  puts @collection.inspect  
   halt 404, "Not found" unless @subject
   #replace_uris_in_collection(@collection, rel_response.collection)
   @title = @subject.skos['prefLabel']
@@ -52,8 +53,8 @@ end
 
 get '/search/' do
   @title = 'Search LCSubjects.org'
-  query = params['q']||"*:*"
-  query << " +resourcetype:\"Authorized Heading\""
+  query = (params['q']||"*:*").clone
+  query << " +resourcetype:(\"Authorized Heading\"||\"Juvenile Heading\")"
   opts = {}
   opts['max'] = params['max']||25
   opts['offset'] = params['offset']||0
@@ -64,7 +65,7 @@ get '/search/' do
   response = Store.search(query, opts)
   @results = SearchResult.new_from_search_result(response.resource)
   @title << ": #{params['q']}"
-  facet_response = Store.facet(query,["collection","subjectType","subdivision"], {:top=>25, :output=>"xml"}) 
+  facet_response = Store.facet((params['q']||"*:*"),["collection","resourcetype"], {:top=>25, :output=>"xml"}) 
   @results.parse_facet_response(facet_response.body.content)
   haml :search, :layout=>:search_layout
 end
@@ -103,7 +104,7 @@ helpers do
   def scheme_labels(scheme)
     label = case scheme.uri
     when "http://lcsubjects.org/schemes/conceptScheme" then "LCSubjects.org"
-    when "http://lcsubjects.org/schemes/authorizedHeadings" then "LC Authorized Headings"
+    when "http://lcsubjects.org/schemes/authorities" then "LC Authorized Headings"
     when "http://lcsubjects.org/schemes/topicalTerms" then "Topical Terms"
     when "http://lcsubjects.org/schemes/geographicNames" then "Geographic Names"
     when "http://lcsubjects.org/schemes/corporateNames" then "Corporate Names"
@@ -118,6 +119,11 @@ helpers do
     when "http://lcsubjects.org/schemes/juvenileHeadings" then "LC Juvenile Headings"
     end
     label
+  end
+  
+  def scheme_label(scheme)
+    puts @collection[scheme.uri].assertions.inspect
+    return @collection[scheme.uri]["http://www.w3.org/2000/01/rdf-schema#label"]
   end
   
   def set_facet_search(facet)
@@ -170,11 +176,12 @@ helpers do
     return nil if total_pages < 1
     ranges = []
     if total_pages > 10        
-      if offset != (5*items_per_page)
+      #if offset != (5*items_per_page)
         ranges << (0..4)
-      end
-      if offset == (5*items_per_page)
+      #end
+      if offset == ((5*items_per_page) - items_per_page)
         ranges << (5..6)
+        ranges << '...'
       else
         ranges << '...'
       end
@@ -188,6 +195,7 @@ helpers do
           endpoint = (offset+items_per_page)/items_per_page
         end
         ranges << (start..endpoint)
+        ranges << '...'
       end
       if !endpoint || endpoint < total_pages
         bottom = (total_pages-4)

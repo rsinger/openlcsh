@@ -7,15 +7,38 @@ body {
 }
 
 .concept {
-  padding-left: 3%;
-  padding-right: 3%;
-  padding-top: 0px;
+
   background: #fff;
-  border-top: thin black inset;
-  border-left: thin black inset;
-  -moz-border-radius-topleft: 5px;
-  -webkit-border-top-left-radius: 25px;
+  clear: both;
   min-height: 500px;
+}
+
+.leftColumn {
+    width: 20%;
+    padding-left: 0px;
+    padding-top: 50px;
+    float: left;    
+}
+
+.mainColumn {
+    padding-left: 3%;
+    padding-right: 3%;
+    padding-top: 0px;    
+    border-top: thin black inset;
+    border-left: thin black inset;
+    -moz-border-radius-topleft: 5px;
+    -webkit-border-top-left-radius: 25px;    
+    width: 50%;
+    float: left;
+}
+
+.rightColumn {
+    width: 20%;
+    padding-top: 50px;    
+    padding-left: 3%;
+    float: left;
+    border-left: thin black inset;
+    border-top: thin black inset;    
 }
 
 .description {
@@ -95,6 +118,14 @@ ul.altLabel li:after {
 ul.altLabel li.altLabelLast:after {
 	content: ". ";
 	}
+#navMenuContainer {
+    float: left;
+    width: 40%;
+}
+#altFormatContainer {
+    float: right;
+    width: 40%;
+}
 ul.navMenu {
   margin-left:  30px;
 }
@@ -108,6 +139,7 @@ ul.navMenu li {
 
 ul.alternativeFormats {  
   float: right;
+  width: 40%;
 }
 
 ul.alternativeFormats li {

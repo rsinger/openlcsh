@@ -7,8 +7,8 @@
         %input{:type=>"submit", :value=>"Search"}
   - unless @results.facets.empty?
     .facetResults
-      - labels = {"collection"=>"Collection", "subjectType"=>"Heading Type", "subdivision"=>"Subdivision"}
-      - ["collection","subjectType","subdivision"].each do |facet|
+      - labels = {"resourcetype"=>"Collection", "collection"=>"Heading Type"}
+      - ["resourcetype","collection"].each do |facet|
         - if @results.facets[facet] && !@results.facets[facet].empty?
           %b #{labels[facet]}
           %ul.facetList
@@ -43,7 +43,7 @@
           #{"..."}
         - elsif page.is_a?(Fixnum)
           %a{:href=>uri_for("/search/", {'q'=>params['q'],'offset'=>(p*@results.results_per_page),'sort'=>params['sort']})} #{p+1}
-      - if @results.offset < (@results.offset - @results.results_per_page)
+      - if @results.offset < (@results.total_hits - @results.results_per_page)
         %a{:href=>uri_for("/search/", {'q'=>params['q'],'offset'=>(@results.offset+@results.results_per_page),'sort'=>params['sort']})} >>
 
 
