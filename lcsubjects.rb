@@ -122,7 +122,6 @@ helpers do
   end
   
   def scheme_label(scheme)
-    puts @collection[scheme.uri].assertions.inspect
     return @collection[scheme.uri]["http://www.w3.org/2000/01/rdf-schema#label"]
   end
   
