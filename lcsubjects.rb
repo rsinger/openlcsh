@@ -39,7 +39,7 @@ get '/subjects/:id' do
   response = describe_graph_objects("http://lcsubjects.org/subjects/#{params['id']}")
   @subject = response.collection["http://lcsubjects.org/subjects/#{params['id']}"]
   @collection = response.collection
-  puts @collection.inspect  
+  #puts @collection.inspect  
   halt 404, "Not found" unless @subject
   #replace_uris_in_collection(@collection, rel_response.collection)
   @title = @subject.skos['prefLabel']
