@@ -21,30 +21,30 @@
   
 - if @results
   .searchResults
-    .hitCount #{@results.total_hits} matches to your search
-    %ol{:start=>(@results.offset + 1)}
-      - @results.hits.each do |result|
+    .hitCount #{@results.results.total_results} matches to your search
+    %ol{:start=>(@results.results.start_index + 1)}    
+      - @results.results.each do |result|
         %li
-          %a{:typeof=>"skos:Concept", :href=>url_from_uri(result.uri), :rel=>result.uri} #{result.skos['prefLabel']}
-          - if result.skos['altLabel']
+          %a{:typeof=>"skos:Concept", :href=>result.to_s, :rel=>result.to_s} #{result.SKOS.prefLabel.first}
+          - unless result.SKOS.altLabel.empty?
             %br
             Use for
-            %em #{[*result.skos["altLabel"]].join("</em>; <em>")}
+            %em #{result.SKOS.altLabel.join("</em>; <em>")}
 
   - if pages = paginate(@results)
     .paginator
-      - if @results.offset > 0
-        %a{:href=>uri_for("/search/", {'q'=>params['q'],'offset'=>(@results.offset-@results.results_per_page),'sort'=>params['sort']})} <<
+      - if @results.results.start_index > 0
+        %a{:href=>uri_for("/search/", {'q'=>params['q'],'offset'=>(@results.results.start_index-@results.results.max_results),'sort'=>params['sort']})} <<
       - pages.each do |page|
         - if page.is_a?(Range)
           - page.each do |p|
-            %a{:href=>uri_for("/search/", {'q'=>params['q'],'offset'=>(p*@results.results_per_page),'sort'=>params['sort']})} #{p+1}
+            %a{:href=>uri_for("/search/", {'q'=>params['q'],'offset'=>(p*@results.results.max_results),'sort'=>params['sort']})} #{p+1}
         - elsif page.is_a?(String)
           #{"..."}
         - elsif page.is_a?(Fixnum)
-          %a{:href=>uri_for("/search/", {'q'=>params['q'],'offset'=>(p*@results.results_per_page),'sort'=>params['sort']})} #{p+1}
-      - if @results.offset < (@results.total_hits - @results.results_per_page)
-        %a{:href=>uri_for("/search/", {'q'=>params['q'],'offset'=>(@results.offset+@results.results_per_page),'sort'=>params['sort']})} >>
+          %a{:href=>uri_for("/search/", {'q'=>params['q'],'offset'=>(p*@results.results.max_results),'sort'=>params['sort']})} #{p+1}
+      - if @results.results.start_index < (@results.results.total_results - @results.results.max_results)
+        %a{:href=>uri_for("/search/", {'q'=>params['q'],'offset'=>(@results.results.start_index+@results.results.max_results),'sort'=>params['sort']})} >>
 
 
 

@@ -2,13 +2,18 @@ require 'rubygems'
 require 'sinatra'
 
 require 'haml'
-require 'rdf_objects/pho'
+require 'sasquatch'
+require 'rdf/rdfobjects'
+require 'rdf/json'
+require 'rdf/rdfxml'
 require 'rack/conneg'
+module RDF
+  class LCSH < RDF::Vocabulary("http://LCSubjects.org/vocab/1#");end
+  class WGS84 < RDF::Vocabulary('http://www.w3.org/2003/01/geo/wgs84_pos#');end  
+  class UMBEL < RDF::Vocabulary('http://umbel.org/umbel#');end  
+end
 configure do
-  Store = RDFObject::Store.new('http://api.talis.com/stores/lcsh-info')
-  Curie.add_prefixes! :skos=>"http://www.w3.org/2004/02/skos/core#", :lcsh=>'http://LCSubjects.org/vocab/1#',
-   :owl=>'http://www.w3.org/2002/07/owl#', :wgs84 => 'http://www.w3.org/2003/01/geo/wgs84_pos#', :dcterms => 'http://purl.org/dc/terms/',
-   :umbel=>'http://umbel.org/umbel#', :rss=>'http://purl.org/rss/1.0/'  
+  Store = Sasquatch::Store.new('lcsh-info')
 end
 use(Rack::Conneg) { |conneg|
   Rack::Mime::MIME_TYPES['.nt'] = 'text/plain'     
@@ -33,21 +38,25 @@ get '/subjects/:id' do
   unless params['id'] =~ /#concept$/
     params['id'] << "#concept"
   end  
-  #response = Store.describe("http://lcsubjects.org/subjects/#{params['id']}")
-  #@subject = response.resource
-  #@collection = response.collection
-  response = describe_graph_objects("http://lcsubjects.org/subjects/#{params['id']}")
-  @subject = response.collection["http://lcsubjects.org/subjects/#{params['id']}"]
-  @collection = response.collection
-  #puts @collection.inspect  
+  response = Store.augment("http://lcsubjects.org/subjects/#{params['id']}")
+  @subject = response["http://lcsubjects.org/subjects/#{params['id']}"]
+  @collection = response
+  
   halt 404, "Not found" unless @subject
-  #replace_uris_in_collection(@collection, rel_response.collection)
-  @title = @subject.skos['prefLabel']
+
+  @title = @subject.SKOS.prefLabel.first
   respond_to do | wants |
-    wants.rdf { @collection.to_xml() }
+    wants.rdf {
+      RDF::RDFXML::Writer.buffer do |writer|
+        @collection.each_statement do |statement|
+          writer << statement
+        end
+        writer
+      end      
+    }
     wants.html { haml :subject, :layout=>:subject_layout }
-    wants.nt {@subject.to_ntriples() }
-    wants.json {@subject.to_json() }
+    wants.nt {@collection.to_ntriples() }
+    wants.json {@collection.to_json() }
   end  
 end
 
@@ -63,19 +72,13 @@ get '/search/' do
   end
 
   response = Store.search(query, opts)
-  @results = SearchResult.new_from_search_result(response.resource)
+  @results = SearchResult.new(response)
   @title << ": #{params['q']}"
-  facet_response = Store.facet((params['q']||"*:*"),["collection","resourcetype"], {:top=>25, :output=>"xml"}) 
-  @results.parse_facet_response(facet_response.body.content)
+  @results.facet((params['q']||"*:*"),["collection","resourcetype"]) 
   haml :search, :layout=>:search_layout
 end
 
 helpers do
-  def describe_graph_objects(uri)
-    sparql = "DESCRIBE <#{uri}> ?o WHERE { <#{uri}> ?p ?o .}"
-    response = Store.sparql_describe(sparql)
-    return response
-  end
   
   def get_related_labels(uri)
     sparql = "PREFIX skos: <http://www.w3.org/2004/02/skos/core#>\n"
@@ -122,7 +125,7 @@ helpers do
   end
   
   def scheme_label(scheme)
-    return @collection[scheme.uri]["http://www.w3.org/2000/01/rdf-schema#label"]
+    return @collection[scheme]["http://www.w3.org/2000/01/rdf-schema#label"]
   end
   
   def set_facet_search(facet)
@@ -155,8 +158,8 @@ helpers do
   
   def divide_matches(matches)
     match = {}
-    [*matches].each do | m |
-      if m.uri =~ /^http:\/\/lcsubjects\.org\//
+    matches.each do | m |
+      if m.to_s =~ /^http:\/\/lcsubjects\.org\//
         match[:internal] ||=[]
         match[:internal] << m
       else
@@ -168,9 +171,9 @@ helpers do
   end
   
   def paginate(search_results)
-    total_results = search_results.total_hits
-    items_per_page = search_results.results_per_page
-    offset = search_results.offset
+    total_results = search_results.results.total_results
+    items_per_page = search_results.results.max_results
+    offset = search_results.results.start_index
     total_pages = total_results.divmod(items_per_page)[0]
     return nil if total_pages < 1
     ranges = []
@@ -213,49 +216,37 @@ helpers do
 end
 
 class SearchResult
-  attr_reader :total_hits, :results_per_page, :hits, :offset, :facets
-  def initialize
-    @total_hits = 0
-    @results_per_page = 0
-    @hits = []
+  attr_reader :results, :facets
+  def initialize(results)
+    @results = results
   end
-  
-  def set_total_hits(i)    
-    @total_hits = i.to_i
-  end
-  
-  def set_results_per_page(i)
-    @results_per_page = i.to_i
-  end
-  
-  def add_hit(h)
-    @hits << h
-  end
-  
-  def set_offset(i)
-    @offset = i.to_i
-  end
-  
-  def parse_facet_response(xml)
+
+  def parse_facet_response(fcts)
+    return unless fcts
     @facets = {}
-    doc = Nokogiri::XML(xml)
-    doc.xpath('/f:facet-results/f:fields/f:field', {"f"=>"http://schemas.talis.com/2007/facet-results#"}).each do | field |
-      @facets[field.attributes['name'].value] = []
-      field.xpath("./f:term", {"f"=>"http://schemas.talis.com/2007/facet-results#"}).each do | term |
-        @facets[field.attributes['name'].value] << {:term=>term.attributes["value"].value, :number => term.attributes["number"].value, :uri=>term.attributes["search-uri"].value}
+    fcts["facet_results"]["fields"]['field'].each do |field|
+      @facets[field['name']] = []
+      next unless field['term']
+      field['term'] = [field['term']] if field['term'].is_a?(Hash)
+      field['term'].each do |term|        
+        @facets[field['name']] << {:term=>term['value'], :number=>term['number'], :uri=>term['search_uri']}
       end
     end
   end  
   
-  def self.new_from_search_result(rdf_resource)
-    result = self.new
-    result.set_total_hits(rdf_resource['http://a9.com/-/spec/opensearch/1.1/']['totalResults'].value)
-    result.set_results_per_page(rdf_resource['http://a9.com/-/spec/opensearch/1.1/']['itemsPerPage'].value)
-    result.set_offset(rdf_resource['http://a9.com/-/spec/opensearch/1.1/']['startIndex'].value)
-    [*rdf_resource.rss["items"].rdf['li']].each do |resource|
-      next unless resource
-      result.add_hit(resource)
+  def facet(terms, fields)
+    parse_facet_response(FacetSearch.search(terms, fields))
+  end
+end
+
+class FacetSearch
+  include HTTParty
+  base_uri "http://api.talis.com/stores/lcsh-info/services"
+  format :xml
+  def self.search(terms, fields)
+    r = self.get("/facet", :query=>{:query=>terms, :fields=>fields.join(","), :top=>25, :output=>"xml"})
+    if r.code == 200      
+      r.parsed_response
     end
-    result
   end
 end
